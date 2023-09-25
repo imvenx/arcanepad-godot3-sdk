@@ -45,7 +45,7 @@ func connectToServer(_url:String) -> void:
 	ws.connect("connection_closed", self, "_closed")
 	ws.connect("connection_error", self, "_closed")
 	ws.connect("connection_established", self, "_connected")
-	ws.connect("data_received", self, "_on_data")
+	ws.connect("data_received", self, "onMessage")
 	var err = ws.connect_to_url(_url, ["lws-mirror-protocol"])
 	if err != OK:
 		print("Unable to connect")
@@ -58,18 +58,13 @@ func _closed(was_clean = false):
 	set_process(false)
 
 func _connected(proto = ""):
-	# This is called on connection, "proto" will be the selected WebSocket
-	# sub-protocol (which is optional)
 	print("Connected with protocol: ", proto)
-	# You MUST always use get_peer(1).put_packet to send data to server,
-	# and not put_packet directly when not using the MultiplayerAPI.
-	ws.get_peer(1).put_packet("Test packet".to_utf8())
 
-func _on_data():
-	# Print the received packet, you MUST always use get_peer(1).get_packet
-	# to receive data from server, and not get_packet directly when not
-	# using the MultiplayerAPI.
-	print("Got data from server: ", ws.get_peer(1).get_packet().get_string_from_utf8())
+#func _on_data():
+#	# Print the received packet, you MUST always use get_peer(1).get_packet
+#	# to receive data from server, and not get_packet directly when not
+#	# using the MultiplayerAPI.
+#	print("Got data from server: ", ws.get_peer(1).get_packet().get_string_from_utf8())
 
 
 func _process(_delta: float) -> void:
@@ -113,14 +108,17 @@ func onClose(was_clean: bool, code: int, reason: String) -> void:
 func onError():
 	print("Error on ws connection")
 
-func onMessage(stringData: String) -> void:
-	var arcaneMessageFrom = JSON.parse(stringData).result
+func onMessage() -> void:
+	var jsonData = ws.get_peer(1).get_packet().get_string_from_utf8()
+	
+	var arcaneMessageFrom = parse_json(jsonData)
+#	var arcaneMessageFrom = JSON.parse(stringData).result
 	if events.has(arcaneMessageFrom["e"]["name"]):
 		for callback in events[arcaneMessageFrom["e"]["name"]]:
 			if callback is FuncRef:
-				callback.call_func(arcaneMessageFrom["e"], arcaneMessageFrom["from"])
-#				callback.callv([arcaneMessageFrom.e])	
-#				callback.callv([])	
+				callback.call_funcv([arcaneMessageFrom["e"], arcaneMessageFrom["from"]])
+				callback.call_funcv([arcaneMessageFrom.e])	
+				callback.call_funcv([])	
 
 func on(eventName: String, handler: FuncRef) -> void:
 	if not events.has(eventName):
@@ -139,10 +137,12 @@ func emit(event: AEvents.ArcaneBaseEvent, to: Array) -> void:
 	print("Sending message: ", msg.e.name, " to: ", to)
 
 	var msgDict = objectToDictionary(msg)
-	var msgJson = JSON.stringify(msgDict)
+	var msgJson = to_json(msgDict)
+	print(msgJson)
 	#	var byteArray = PackedByteArray(msgJson.to_ascii_buffer())
 	#	ws.send(byteArray)
-	ws.send_text(msgJson)
+#	ws.send_text(msgJson)
+	ws.get_peer(1).put_packet(msgJson.to_utf8())
 
 #func emitToViews(e):
 #	emit(e, Arcane.iframeViewsIds)
@@ -199,17 +199,24 @@ func urlEncode(s):
 
 func objectToDictionary(obj):
 	var result = {}
-	if obj is Array or typeof(obj) in [TYPE_REAL, TYPE_STRING, TYPE_INT]:
+	if obj is Array or typeof(obj) in [TYPE_REAL, TYPE_STRING, TYPE_INT, TYPE_BOOL]:
 		return obj
 
 	for property in obj.get_property_list():
-		var name = property["name"]
-		# Skip unwanted or built-in properties.
+		var name = property.name
 		if name in ["script"]:
 			continue
 
-		var value = obj.get(name)
-		# Handle recursive conversion of objects, dictionaries, and arrays.
+		var value = null
+		if obj.has_method("get"):
+			value = obj.get(name)
+		else:
+			print("Method get() not found for ", name)
+
+		if value == null:
+			print("Property is null: ", name)
+			continue
+
 		if value is Object:
 			value = objectToDictionary(value)
 		elif value is Array:
@@ -223,6 +230,7 @@ func objectToDictionary(obj):
 
 		result[name] = value
 	return result
+
 
 func dictionaryToObject(dictionary):
 	var className = dictionary["name"] + "Event"

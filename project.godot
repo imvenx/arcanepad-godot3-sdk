@@ -51,7 +51,7 @@ _global_script_class_icons={
 [application]
 
 config/name="arcanepad-godot3-sdk"
-run/main_scene="res://Node2D.tscn"
+run/main_scene="res://TestScene.tscn"
 config/icon="res://icon.png"
 
 [autoload]

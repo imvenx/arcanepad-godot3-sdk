@@ -6,8 +6,8 @@ extends Node
 #@export_enum("view", "pad")
 var deviceType: String = "view"
 
-var msg
-var devices = [AModels.ArcaneDevice]
+var msg: AWebsocketService
+var devices = []
 var pads = []
 var internalViewsIds = []
 var internalPadsIds = []
@@ -30,12 +30,13 @@ func _ready():
 func initialize(initializeEvent, _from):
 	refreshGlobalState(initializeEvent.globalState)
 	for p in pads:
+		print(to_json(p))
 		if p.deviceId == msg.deviceId:
 			pad = p
 			break
 
 	var initialState = AModels.InitialState.new(pads)
-	msg.trigger('ArcaneClientInitialized', funcref(self, 'initialState'))
+	msg.trigger('ArcaneClientInitialized', initialState)
 #	eventEmitter.emit('ArcaneClientInitialized', initialState)
 #	emit_signal("arcaneClientInitialized", initialState)
 
@@ -81,7 +82,7 @@ func refreshClientsIds(_devices: Array) -> void:
 	iframeViewsIds = _iframeViewsIds
 
 func getPads(_devices: Array) -> Array:
-	var _pads:Array = [ArcanePad]
+	var _pads:Array = []
 
 	var padDevices = []
 	for device in _devices:

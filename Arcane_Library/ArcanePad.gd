@@ -8,8 +8,7 @@ var iframeId: String
 var iframeIdList: Array
 var isConnected: bool
 
-onready var Arcane = get_node('/root/Arcane')
-var msg = Arcane.msg
+#onready var Arcane = get_node('/root/Arcane')
 
 var eventEmitter 
 
@@ -32,17 +31,17 @@ func setupEvents():
 #	msg.on("IframePadDisconnect", func(e): _proxyEvent(e, e.iframeId))
 #	proxyEventConnectRef = self.get_ref("_proxyEventConnect")
 #	proxyEventDisconnectRef = self.get_ref("_proxyEventDisconnect")
-	msg.on("IframePadConnect", funcref(self, "_proxyEventConnect"))
-	msg.on("IframePadDisconnect", funcref(self, "_proxyEventDisconnect"))
+	Arcane.msg.on("IframePadConnect", funcref(self, "_proxyEventConnect"))
+	Arcane.msg.on("IframePadDisconnect", funcref(self, "_proxyEventDisconnect"))
 	
-	msg.on("GetQuaternion", funcref(self, "_proxyEvent"))
+	Arcane.msg.on("GetQuaternion", funcref(self, "_proxyEvent"))
 	
-	msg.on("GetRotationEuler", funcref(self, "_proxyEvent"))
+	Arcane.msg.on("GetRotationEuler", funcref(self, "_proxyEvent"))
 	
-	msg.on("GetPointer", funcref(self, "_proxyEvent"))
+	Arcane.msg.on("GetPointer", funcref(self, "_proxyEvent"))
 	
-	msg.on("OpenArcaneMenu", funcref(self, "_proxyEvent"))
-	msg.on("CloseArcaneMenu", funcref(self, "_proxyEvent"))
+	Arcane.msg.on("OpenArcaneMenu", funcref(self, "_proxyEvent"))
+	Arcane.msg.on("CloseArcaneMenu", funcref(self, "_proxyEvent"))
 
 func _proxyEventConnect(e):
 	_proxyEvent(e, e.iframeId)
@@ -69,10 +68,10 @@ func onDisconnect(callback: FuncRef):
 	eventEmitter.on("IframePadDisconnect" + '_' + iframeId, callback)
 
 func startGetQuaternion():
-	msg.emit(AEvents.StartGetQuaternionEvent.new(), internalIdList)
+	Arcane.msg.emit(AEvents.StartGetQuaternionEvent.new(), internalIdList)
 
 func stopGetQuaternion(offAllListeners: bool = false):
-	msg.emit(AEvents.StopGetQuaternionEvent.new(), internalIdList)
+	Arcane.msg.emit(AEvents.StopGetQuaternionEvent.new(), internalIdList)
 	if offAllListeners:
 		eventEmitter.offAll("GetQuaternion" + '_' + internalId)
 
@@ -80,13 +79,13 @@ func onGetQuaternion(callback: FuncRef):
 	eventEmitter.on("GetQuaternion" + '_' + internalId, callback)
 
 func calibrateQuaternion():
-	msg.emit(AEvents.CalibrateQuaternionEvent.new(), internalIdList)
+	Arcane.msg.emit(AEvents.CalibrateQuaternionEvent.new(), internalIdList)
 
 func startGetRotationEuler():
-	msg.emit(AEvents.StartGetRotationEulerEvent.new(), internalIdList)
+	Arcane.msg.emit(AEvents.StartGetRotationEulerEvent.new(), internalIdList)
 
 func stopGetRotationEuler(offAllListeners: bool = false):
-	msg.emit(AEvents.StopGetRotationEulerEvent.new(), internalIdList)
+	Arcane.msg.emit(AEvents.StopGetRotationEulerEvent.new(), internalIdList)
 	if offAllListeners:
 		eventEmitter.offAll("GetRotationEuler" + '_' + internalId)
 
@@ -94,10 +93,10 @@ func onGetRotationEuler(callback: FuncRef):
 	eventEmitter.on("GetRotationEuler" + '_' + internalId, callback)
 
 func startGetPointer():
-	msg.emit(AEvents.StartGetPointerEvent.new(), internalIdList)
+	Arcane.msg.emit(AEvents.StartGetPointerEvent.new(), internalIdList)
 
 func stopGetPointer(offAllListeners: bool = false):
-	msg.emit(AEvents.StopGetPointerEvent.new(), internalIdList)
+	Arcane.msg.emit(AEvents.StopGetPointerEvent.new(), internalIdList)
 	if offAllListeners:
 		eventEmitter.offAll("GetPointer" + '_' + internalId)
 
@@ -105,10 +104,10 @@ func onGetPointer(callback: FuncRef):
 	eventEmitter.on("GetPointer" + '_' + internalId, callback)
 
 func calibratePointer():
-	msg.emit(AEvents.CalibratePointerEvent.new(), internalIdList)
+	Arcane.msg.emit(AEvents.CalibratePointerEvent.new(), internalIdList)
 
 func vibrate(milliseconds: int):
-	msg.emit(AEvents.VibrateEvent.new(milliseconds), internalIdList)
+	Arcane.msg.emit(AEvents.VibrateEvent.new(milliseconds), internalIdList)
 
 func onOpenArcaneMenu(callback: FuncRef):
 	eventEmitter.on("OpenArcaneMenu" + '_' + iframeId, callback)
@@ -118,7 +117,7 @@ func onCloseArcaneMenu(callback: FuncRef):
 
 
 func send(event: AEvents.ArcaneBaseEvent):
-	msg.emit(event, iframeIdList)
+	Arcane.msg.emit(event, iframeIdList)
 
 func on(eventName: String, callback: FuncRef):
 	var fullEventName = eventName + '_' + iframeId
@@ -132,7 +131,7 @@ func on(eventName: String, callback: FuncRef):
 #				_proxyEvent(event, iframeId)
 #	)
 
-	msg.on(eventName, funcref(self, "proxyOnCustomEvent"))
+	Arcane.msg.on(eventName, funcref(self, "proxyOnCustomEvent"))
 
 func proxyOnCustomEvent(event, clientId):
 	if(clientId == iframeId):
