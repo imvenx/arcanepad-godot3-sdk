@@ -15,6 +15,9 @@ var iframeViewsIds = []
 var iframePadsIds = []
 var pad
 
+var signals = ASignals.new()
+
+
 func _ready():
 	var url = "wss://localhost:3005/"
 	
@@ -24,8 +27,8 @@ func _ready():
 	msg = AWebsocketService.new(url, deviceType)
 	self.add_child(msg)
 
-	msg.on("Initialize", funcref(self, 'initialize'))
-	msg.on("RefreshGlobalState", funcref(self, '_refreshGlobalState'))
+	Arcane.signals.connect("Initialize", self, 'initialize')
+	Arcane.signals.connect("RefreshGlobalState", self, '_refreshGlobalState')
 
 func initialize(initializeEvent, _from):
 	refreshGlobalState(initializeEvent.globalState)
@@ -36,13 +39,14 @@ func initialize(initializeEvent, _from):
 			break
 
 	var initialState = AModels.InitialState.new(pads)
-	msg.trigger('ArcaneClientInitialized', initialState)
+#	msg.trigger('ArcaneClientInitialized', initialState)
+	signals.emit_signal('ArcaneClientInitialized', initialState)
 #	eventEmitter.emit('ArcaneClientInitialized', initialState)
 #	emit_signal("arcaneClientInitialized", initialState)
 
-	msg.off('Initialize', funcref(self, 'initialize'))
+	msg.off('Initialize', self, 'initialize')
 
-func _refreshGlobalState(e):
+func _refreshGlobalState(e, _from):
 	refreshGlobalState(e.refreshedGlobalState)
 
 func refreshGlobalState(refreshedGlobalState):

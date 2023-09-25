@@ -6,20 +6,22 @@ var isGamePaused := false
 var playerScene = preload("res://Player/Player.tscn")
 
 #onready var Arcane = get_node('/root/Arcane')
-
+signal IframePadConnect
 func _ready():
-	Arcane.msg.on("ArcaneClientInitialized", funcref(self, "onArcaneClientInitialized"))
+	Arcane.signals.connect("ArcaneClientInitialized", self, "onArcaneClientInitialized")
 
 func onArcaneClientInitialized(initialState):
 	for pad in initialState.pads:
 		createPlayer(pad)
 		
 #	initialState.pads[0].onDisconnect(asd)
-		
-	Arcane.msg.on("IframePadConnect", funcref(self, "onIframePadConnect"))
-	Arcane.msg.on("IframePadDisconnect", funcref(self, "onIframePadDisconnect"))
+#	self.connect("IframePadConnect", self, "onIframePadConnect")
+	
+#	emit_signal('IframePadConnect', '', '')
+	Arcane.signals.connect("IframePadConnect", self, "onIframePadConnect")
+	Arcane.signals.connect("IframePadDisconnect", self, "onIframePadDisconnect")
 
-func onIframePadConnect(e):
+func onIframePadConnect(e, _from):
 	var playerExists = false
 	for _player in players:
 		if _player.pad.iframeId == e.iframeId:
@@ -31,13 +33,13 @@ func onIframePadConnect(e):
 	var pad = ArcanePad.new(e.deviceId, e.internalId, e.iframeId, true, e.user)
 	createPlayer(pad)
 
-func asd():
-	print('asdasd')
+#func asd():
+#	print('asdasd')
 
-func onIframePadDisconnect(event):
+func onIframePadDisconnect(e, _from):
 	var player = null
 	for _player in players:
-		if _player.pad.iframeId == event.iframeId:
+		if _player.pad.iframeId == e.iframeId:
 			player = _player
 			break
 			
@@ -57,3 +59,5 @@ func createPlayer(pad):
 func destroy_player(player):
 	players.erase(player)
 	if player:	player.queue_free()
+	
+	

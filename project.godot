@@ -25,6 +25,11 @@ _global_script_classes=[ {
 "path": "res://Arcane_Library/models/Models.gd"
 }, {
 "base": "Node",
+"class": "ASignals",
+"language": "GDScript",
+"path": "res://Arcane_Library/ASignals.gd"
+}, {
+"base": "Node",
 "class": "AWebsocketService",
 "language": "GDScript",
 "path": "res://Arcane_Library/Services/AWebsocketService.gd"
@@ -43,6 +48,7 @@ _global_script_class_icons={
 "AEventEmitter": "",
 "AEvents": "",
 "AModels": "",
+"ASignals": "",
 "AWebsocketService": "",
 "ArcanePad": "",
 "GitAPI": ""

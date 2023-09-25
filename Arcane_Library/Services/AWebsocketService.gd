@@ -18,7 +18,6 @@ func _init(_url: String, _deviceType: String) -> void:
 	initWebsocket()
 
 func initWebsocket():
-#	clientInitData = AModels.ArcaneClientInitData.new("external", deviceType, "godot3-dev")
 	clientInitData = { "clientType": "external", "deviceType": deviceType, "deviceId": "godot3-dev" }
 	
 	var stringifiedClientInitData = to_json(clientInitData)
@@ -26,7 +25,8 @@ func initWebsocket():
 	var encodedClientInitData = urlEncode(stringifiedClientInitData)
 	url = url + "?clientInitData=" + encodedClientInitData
 	connectToServer(url)
-	on("Initialize", funcref(self, "onInitialize"))
+#	on("Initialize", self, "onInitialize")
+	Arcane.signals.connect('Initialize', self, 'onInitialize')
 
 func onInitialize(e, _from):
 	if e.assignedClientId == null or e.assignedClientId == "":
@@ -52,48 +52,15 @@ func connectToServer(_url:String) -> void:
 		set_process(false)
 
 func _closed(was_clean = false):
-	# was_clean will tell you if the disconnection was correctly notified
-	# by the remote peer before closing the socket.
 	print("Closed, clean: ", was_clean)
 	set_process(false)
 
 func _connected(proto = ""):
 	print("Connected with protocol: ", proto)
 
-#func _on_data():
-#	# Print the received packet, you MUST always use get_peer(1).get_packet
-#	# to receive data from server, and not get_packet directly when not
-#	# using the MultiplayerAPI.
-#	print("Got data from server: ", ws.get_peer(1).get_packet().get_string_from_utf8())
-
-
 func _process(_delta: float) -> void:
-	ws.poll()  # Update the connection state and receive incoming packets
-#	var state = ws.get_connection_status()
-#
-#	if state == WebSocketClient.CONNECTION_CONNECTING:
-#		print("Websocket connecting...")
-#
-#	elif state == WebSocketClient.CONNECTION_ESTABLISHED:
-#		if !isConnected:
-#			print("Websocket connection opened")
-#			isConnected = true
-#
-#		while ws.get_peer(1).get_available_packet_count() > 0:
-#			var packet = ws.get_peer(1).get_packet()
-#			var data = packet.get_string_from_utf8()
-#			onMessage(data)
-#
-#	elif state == WebSocketClient.CONNECTION_CLOSING:
-#		print("Closing websocket connection")
-#
-#	elif state == WebSocketClient.CONNECTION_CLOSED:
-#		print("Websocket connection closed")
-#		isConnected = false
-#		yield(get_tree().create_timer(float(reconnection_delay_miliseconds) / 1000.0), "timeout")
-#		reconnect()
+	ws.poll()
 
-#
 func onOpen() -> void:
 	print("WebSocket connection opened.")
 
@@ -112,25 +79,23 @@ func onMessage() -> void:
 	var jsonData = ws.get_peer(1).get_packet().get_string_from_utf8()
 	
 	var arcaneMessageFrom = parse_json(jsonData)
-#	var arcaneMessageFrom = JSON.parse(stringData).result
-	if events.has(arcaneMessageFrom["e"]["name"]):
-		for callback in events[arcaneMessageFrom["e"]["name"]]:
-			if callback is FuncRef:
-				callback.call_funcv([arcaneMessageFrom["e"], arcaneMessageFrom["from"]])
-				callback.call_funcv([arcaneMessageFrom.e])	
-				callback.call_funcv([])	
+#	print('received event: ', arcaneMessageFrom.e.name)
+	Arcane.signals.emit_signal(arcaneMessageFrom.e.name, arcaneMessageFrom.e, arcaneMessageFrom.from)
+#	if events.has(arcaneMessageFrom["e"]["name"]):
+#		for callback in events[arcaneMessageFrom["e"]["name"]]:
+#			if callback is FuncRef:
+#				callback.call_funcv([arcaneMessageFrom["e"], arcaneMessageFrom["from"]])
 
-func on(eventName: String, handler: FuncRef) -> void:
-	if not events.has(eventName):
-		events[eventName] = []
-	events[eventName].append(handler)
+#func on(eventName: String, object:Object, functionName:String) -> void:
+#	var callback = funcref(object,functionName)
+#	if not events.has(eventName): events[eventName] = []
+#	events[eventName].append(callback)
 
 func trigger(eventName:String, event):
 	if events.has(eventName):
 		for callback in events[eventName]:
 			if callback is FuncRef:
 				callback.call_func(event)	
-#				callback.callv([])	
 
 func emit(event: AEvents.ArcaneBaseEvent, to: Array) -> void:
 	var msg = AEvents.ArcaneMessageTo.new(event, to)
@@ -139,18 +104,16 @@ func emit(event: AEvents.ArcaneBaseEvent, to: Array) -> void:
 	var msgDict = objectToDictionary(msg)
 	var msgJson = to_json(msgDict)
 	print(msgJson)
-	#	var byteArray = PackedByteArray(msgJson.to_ascii_buffer())
-	#	ws.send(byteArray)
-#	ws.send_text(msgJson)
 	ws.get_peer(1).put_packet(msgJson.to_utf8())
 
-#func emitToViews(e):
-#	emit(e, Arcane.iframeViewsIds)
+func emitToViews(e):
+	emit(e, Arcane.iframeViewsIds)
 
-#func emitToPads(e):
-#	emit(e, Arcane.iframePadsIds)
+func emitToPads(e):
+	emit(e, Arcane.iframePadsIds)
 
-func off(eventName: String, callback: FuncRef) -> void:
+func off(eventName: String, object:Object, functionName:String) -> void:
+	var callback = funcref(object, functionName)
 	if not events.has(eventName):
 		return
 	if callback:
@@ -160,7 +123,7 @@ func off(eventName: String, callback: FuncRef) -> void:
 	else:
 		events.erase(eventName)
 
-func offAllForEvent(eventName: String) -> void:
+func offAll(eventName: String) -> void:
 	if events.has(eventName):
 		events.erase(eventName)
 
