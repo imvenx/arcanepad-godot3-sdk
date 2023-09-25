@@ -10,6 +10,18 @@ var isConnected: bool
 
 signal GetQuaternion(quaternion)
 
+func addSignal(signalName:String):
+	for s in get_signal_list():
+		if(s.name == signalName): return
+		
+	add_user_signal(signalName)
+	Arcane.signals.addSignal(signalName)
+	Arcane.signals.connect(signalName, self, '_proxyEvent')
+
+func _proxyEvent(e, from:String):
+	if from != iframeId: return
+	emit_signal(e.name, e)
+	
 func _init(_deviceId: String, _internalId: String, _iframeId: String, _isConnected: bool, _user = null):
 	user = _user
 	deviceId = _deviceId

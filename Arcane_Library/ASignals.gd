@@ -34,3 +34,9 @@ signal GetPointer(x, y)
 signal CalibratePointer
 signal Vibrate(milliseconds)
 signal RefreshGlobalState(refreshedGlobalState)
+
+func addSignal(signalName:String): 
+	for s in get_signal_list():
+		if(s.name == signalName): return
+		
+	add_user_signal(signalName)

@@ -10,17 +10,17 @@ func initialize(_pad:ArcanePad) -> void:
 	
 #	Arcane.signals.connect('Left', self, 'onLeft')
 	
-#	pad.on("Left", funcref(self, 'onLeft'))
 	pad.startGetQuaternion()
 	pad.connect('GetQuaternion', self, 'onGetQuaternion')
 	
-#	pad.onGetQuaternion(funcref(self, 'onGetQuaternion'))
+	pad.addSignal('Left')
+	pad.connect('Left', self, 'onLeft')
 	
 func _process(delta):
 	self.transform.basis = Basis(padQuaternion)
 	
-func onLeft(a,b):
-	print("Left!")
+func onLeft(e):
+	print("Left!", pad.iframeId)
 
 func onGetQuaternion(e):
 	padQuaternion.x = -e.x
