@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Node",
+"class": "AEventEmitter",
+"language": "GDScript",
+"path": "res://Arcane_Library/Services/AEventEmitter.gd"
+}, {
 "base": "Reference",
 "class": "AEvents",
 "language": "GDScript",
@@ -19,27 +24,28 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Arcane_Library/models/Models.gd"
 }, {
-"base": "Reference",
-"class": "Arcane",
+"base": "Node",
+"class": "AWebsocketService",
 "language": "GDScript",
-"path": "res://Arcane_Library/Arcane.gd"
+"path": "res://Arcane_Library/Services/AWebsocketService.gd"
 }, {
-"base": "",
+"base": "Node",
+"class": "ArcanePad",
+"language": "GDScript",
+"path": "res://Arcane_Library/ArcanePad.gd"
+}, {
+"base": "EditorVCSInterface",
 "class": "GitAPI",
 "language": "NativeScript",
 "path": "res://addons/godot-git-plugin/git_api.gdns"
-}, {
-"base": "Node",
-"class": "WebsocketService",
-"language": "GDScript",
-"path": "res://Arcane_Library/services/WebsocketService.gd"
 } ]
 _global_script_class_icons={
+"AEventEmitter": "",
 "AEvents": "",
 "AModels": "",
-"Arcane": "",
-"GitAPI": "",
-"WebsocketService": ""
+"AWebsocketService": "",
+"ArcanePad": "",
+"GitAPI": ""
 }
 
 [application]
@@ -47,6 +53,10 @@ _global_script_class_icons={
 config/name="arcanepad-godot3-sdk"
 run/main_scene="res://Node2D.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+Arcane="*res://Arcane_Library/Arcane.gd"
 
 [editor]
 

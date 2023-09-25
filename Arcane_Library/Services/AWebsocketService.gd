@@ -1,0 +1,242 @@
+extends Node
+
+class_name AWebsocketService
+	
+var ws = WebSocketClient.new()
+var events: Dictionary = {}
+var clientId: String
+var deviceId: String
+var reconnection_delay_miliseconds: int = 1000
+var clientInitData
+var url: String
+var deviceType:String
+var isConnected = false
+
+func _init(_url: String, _deviceType: String) -> void:
+	url = _url
+	deviceType = _deviceType
+	initWebsocket()
+
+func initWebsocket():
+#	clientInitData = AModels.ArcaneClientInitData.new("external", deviceType, "godot3-dev")
+	clientInitData = { "clientType": "external", "deviceType": deviceType, "deviceId": "godot3-dev" }
+	
+	var stringifiedClientInitData = to_json(clientInitData)
+	print(stringifiedClientInitData)
+	var encodedClientInitData = urlEncode(stringifiedClientInitData)
+	url = url + "?clientInitData=" + encodedClientInitData
+	connectToServer(url)
+	on("Initialize", funcref(self, "onInitialize"))
+
+func onInitialize(e, _from):
+	if e.assignedClientId == null or e.assignedClientId == "":
+		printerr("Missing clientId on initialize")
+		return
+	if e.assignedDeviceId == null or e.assignedDeviceId == "":
+		printerr("Missing deviceId on initialize")
+		return
+	clientId = e["assignedClientId"]
+	deviceId = e["assignedDeviceId"]
+	print("Client initialized with clientId: %s and deviceId: %s" % [clientId, deviceId])
+
+func connectToServer(_url:String) -> void:
+	print("connecting  to server: ", _url)
+	
+	ws.connect("connection_closed", self, "_closed")
+	ws.connect("connection_error", self, "_closed")
+	ws.connect("connection_established", self, "_connected")
+	ws.connect("data_received", self, "_on_data")
+	var err = ws.connect_to_url(_url, ["lws-mirror-protocol"])
+	if err != OK:
+		print("Unable to connect")
+		set_process(false)
+
+func _closed(was_clean = false):
+	# was_clean will tell you if the disconnection was correctly notified
+	# by the remote peer before closing the socket.
+	print("Closed, clean: ", was_clean)
+	set_process(false)
+
+func _connected(proto = ""):
+	# This is called on connection, "proto" will be the selected WebSocket
+	# sub-protocol (which is optional)
+	print("Connected with protocol: ", proto)
+	# You MUST always use get_peer(1).put_packet to send data to server,
+	# and not put_packet directly when not using the MultiplayerAPI.
+	ws.get_peer(1).put_packet("Test packet".to_utf8())
+
+func _on_data():
+	# Print the received packet, you MUST always use get_peer(1).get_packet
+	# to receive data from server, and not get_packet directly when not
+	# using the MultiplayerAPI.
+	print("Got data from server: ", ws.get_peer(1).get_packet().get_string_from_utf8())
+
+
+func _process(_delta: float) -> void:
+	ws.poll()  # Update the connection state and receive incoming packets
+#	var state = ws.get_connection_status()
+#
+#	if state == WebSocketClient.CONNECTION_CONNECTING:
+#		print("Websocket connecting...")
+#
+#	elif state == WebSocketClient.CONNECTION_ESTABLISHED:
+#		if !isConnected:
+#			print("Websocket connection opened")
+#			isConnected = true
+#
+#		while ws.get_peer(1).get_available_packet_count() > 0:
+#			var packet = ws.get_peer(1).get_packet()
+#			var data = packet.get_string_from_utf8()
+#			onMessage(data)
+#
+#	elif state == WebSocketClient.CONNECTION_CLOSING:
+#		print("Closing websocket connection")
+#
+#	elif state == WebSocketClient.CONNECTION_CLOSED:
+#		print("Websocket connection closed")
+#		isConnected = false
+#		yield(get_tree().create_timer(float(reconnection_delay_miliseconds) / 1000.0), "timeout")
+#		reconnect()
+
+#
+func onOpen() -> void:
+	print("WebSocket connection opened.")
+
+func onClose(was_clean: bool, code: int, reason: String) -> void:
+	if was_clean:
+		print("WebSocket connection closed cleanly, code=%s, reason=%s" % [str(code), reason])
+	else:
+		printerr("WebSocket connection died")
+		yield(get_tree().create_timer(float(reconnection_delay_miliseconds) / 1000.0), "timeout")
+		reconnect()
+
+func onError():
+	print("Error on ws connection")
+
+func onMessage(stringData: String) -> void:
+	var arcaneMessageFrom = JSON.parse(stringData).result
+	if events.has(arcaneMessageFrom["e"]["name"]):
+		for callback in events[arcaneMessageFrom["e"]["name"]]:
+			if callback is FuncRef:
+				callback.call_func(arcaneMessageFrom["e"], arcaneMessageFrom["from"])
+#				callback.callv([arcaneMessageFrom.e])	
+#				callback.callv([])	
+
+func on(eventName: String, handler: FuncRef) -> void:
+	if not events.has(eventName):
+		events[eventName] = []
+	events[eventName].append(handler)
+
+func trigger(eventName:String, event):
+	if events.has(eventName):
+		for callback in events[eventName]:
+			if callback is FuncRef:
+				callback.call_func(event)	
+#				callback.callv([])	
+
+func emit(event: AEvents.ArcaneBaseEvent, to: Array) -> void:
+	var msg = AEvents.ArcaneMessageTo.new(event, to)
+	print("Sending message: ", msg.e.name, " to: ", to)
+
+	var msgDict = objectToDictionary(msg)
+	var msgJson = JSON.stringify(msgDict)
+	#	var byteArray = PackedByteArray(msgJson.to_ascii_buffer())
+	#	ws.send(byteArray)
+	ws.send_text(msgJson)
+
+#func emitToViews(e):
+#	emit(e, Arcane.iframeViewsIds)
+
+#func emitToPads(e):
+#	emit(e, Arcane.iframePadsIds)
+
+func off(eventName: String, callback: FuncRef) -> void:
+	if not events.has(eventName):
+		return
+	if callback:
+		events[eventName].erase(callback)
+		if events[eventName].size() == 0:
+			events.erase(eventName)
+	else:
+		events.erase(eventName)
+
+func offAllForEvent(eventName: String) -> void:
+	if events.has(eventName):
+		events.erase(eventName)
+
+func close() -> void:
+	ws.close()
+
+func reconnect() -> void:
+	print("Attempting to reconnect...")
+	connectToServer(url)
+
+
+
+
+# UTILS:
+
+func ascii_to_char(ascii_code):
+	var char_map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~"
+	for i in range(char_map.length()):
+		if ascii_code == ord(char_map[i]):
+			return char_map[i]
+	return null
+
+func urlEncode(s):
+	var result = ""
+	var utf8_bytes = s.to_utf8()
+	for i in range(utf8_bytes.size()):
+		var byte = utf8_bytes[i]
+		var byte_as_char = ascii_to_char(byte)
+		if byte_as_char:
+			result += byte_as_char
+		elif byte == 32:  # ASCII for space
+			result += "+"
+		else:
+			result += "%" + "%02X" % byte
+	return result
+
+func objectToDictionary(obj):
+	var result = {}
+	if obj is Array or typeof(obj) in [TYPE_REAL, TYPE_STRING, TYPE_INT]:
+		return obj
+
+	for property in obj.get_property_list():
+		var name = property["name"]
+		# Skip unwanted or built-in properties.
+		if name in ["script"]:
+			continue
+
+		var value = obj.get(name)
+		# Handle recursive conversion of objects, dictionaries, and arrays.
+		if value is Object:
+			value = objectToDictionary(value)
+		elif value is Array:
+			var newArray = []
+			for item in value:
+				if item is Object:
+					newArray.append(objectToDictionary(item))
+				else:
+					newArray.append(item)
+			value = newArray
+
+		result[name] = value
+	return result
+
+func dictionaryToObject(dictionary):
+	var className = dictionary["name"] + "Event"
+	var instance = ClassDB.instance(className)
+
+	if instance == null:
+		print("Failed to instantiate class: ", className)
+		return null
+
+	for key in dictionary.keys():
+		var method_name = "set_" + key
+		if instance.has_method(method_name):
+			instance.call(method_name, dictionary[key])
+		else:
+			print("Method does not exist: ", method_name)
+
+	return instance
