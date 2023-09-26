@@ -65,3 +65,21 @@ class ArcaneUser:
 		self.id = _id
 		self.name = _name
 		self.color = _color
+		
+		
+class ArcaneInitParams:
+	var deviceType:String
+	var ipOctets:String
+	var port:String
+	var reverseProxyPort:String
+	
+	func _init(
+		_deviceType:String = 'view', 
+		_ipOctets:String = '', 
+		_port:String = '3005', 
+		_reverseProxyPort:String = '3009'
+	):
+		deviceType = _deviceType
+		ipOctets = _ipOctets
+		port = _port
+		reverseProxyPort = _reverseProxyPort

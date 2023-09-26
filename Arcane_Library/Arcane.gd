@@ -6,7 +6,7 @@ extends Node
 var LIBRARY_VERSION = '0.0.1'
 
 #@export_enum("view", "pad")
-var deviceType: String = "view"
+#var deviceType: String = "view"
 
 var msg: AWebsocketService
 var devices = []
@@ -22,29 +22,14 @@ var isWebEnv
 
 var signals = ASignals.new()
 
-func init(_deviceType:String = 'view'):
+func init(params = {
+	'deviceType': 'view',
+	'port': '3005',
+	'reverseProxyPort': '3009',
+	'arcaneCode': '',
+	}):
 	
-	isWebEnv = OS.get_name() == "HTML5"
-	if isWebEnv: isIframe = JavaScript.eval('window.self !== window.top')
-	
-	var url = "wss://192.168.0.30:3005/"
-	
-	var protocol = 'wss'
-	var port = '3005'
-	var reverseProxyPort = '3009'
-	
-	if Engine.has_singleton("DebugMode") or ["Windows", "X11", "OSX"].has(OS.get_name()):
-#		url = "ws://192.168.0.30:3009/"
-		protocol = 'ws'
-		port = reverseProxyPort
-		url = "wss://192.168.0.30:3009/"
-		
-	
-#	var currentUrl = JavaScript.eval("window.location.href")
-#	print('urrrrrrrrrrrrrrrrrrrrrrrrrrl!!!', currentUrl)
-	
-	deviceType = _deviceType
-	msg = AWebsocketService.new(url, deviceType)
+	msg = AWebsocketService.new(params)
 	self.add_child(msg)
 	
 

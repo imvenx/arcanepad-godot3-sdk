@@ -8,19 +8,35 @@ var clientId: String
 var deviceId: String
 var reconnection_delay_miliseconds: int = 1000
 var clientInitData
-var url: String
 var deviceType:String
 var isConnected = false
 
-func _init(_url: String, _deviceType: String) -> void:
-	url = _url
-	deviceType = _deviceType
-	initWebsocket()
+var host: String
+var protocol:String
+var port:String
+var reverseProxyPort:String
+var ipOctets:String
+var url:String
 
 
-func initWebsocket():
-	var clientInitData = getClientInitData()
+func _init(params) -> void:
+	initWebsocket(params)
+
+
+func initWebsocket(params):
 	
+#	if params.has('deviceType'): deviceType = params.deviceType 
+#	else: deviceType = 'view'
+#
+#	ipOctets = params.ipOctets
+#	port = params.port
+#	reverseProxyPort = params.reverseProxyPort
+	
+	if Engine.has_singleton("DebugMode") or ["Windows", "X11", "OSX"].has(OS.get_name()):
+		initAsExternalClient(params)
+		
+	else: initAsIframeClient(params)
+
 	var stringifiedClientInitData = to_json(clientInitData)
 	print(stringifiedClientInitData)
 	var encodedClientInitData = urlEncode(stringifiedClientInitData)
@@ -28,33 +44,44 @@ func initWebsocket():
 	connectToServer(url)
 	Arcane.signals.connect('Initialize', self, 'onInitialize')
 
-func getQueryParamsDictionary():
-	var queryParams = {}
-	if Engine.has_singleton("JavaScript"):
-		var query_string = JavaScript.eval("window.location.search.substring(1);")
-		
-		if query_string.empty():
-			return queryParams  # Return empty dictionary if no query string
 
-		var pairs = query_string.split("&")
+func initAsExternalClient(params):
+	protocol = 'ws'
+	if not params.has('arcaneCode') or !params.arcaneCode:
+		printerr('Arcane Error: Need to specify arcaneCode on init i.e: Arcane.init({ arcaneCode: 0.64 }) to get the arcane code go to ArcanePad App, it should be displayed on top or on connect option. Go to https://arcanepad.com/docs for more information')
+		return
 		
-		for pair in pairs:
-			var key_value = pair.split("=")
-			if key_value.size() == 2:
-				queryParams[key_value[0]] = key_value[1]
+	host = '192.168.' + params.arcaneCode
+	if not params.has('reverseProxyPort'): params['reverseProxyPort'] = '3009'
+	if not params.has('deviceType'): params['deviceType'] = 'view'
+	url = protocol + '://' + host + ':' + params.reverseProxyPort + '/'
+	clientInitData = { "clientType": "external", "deviceType": params.deviceType }
 	
-	return queryParams
-
-func getClientInitData():
 	
-	if !Arcane.isIframe: return { "clientType": "external", "deviceType": deviceType }
-	
-	var params = getQueryParamsDictionary()
-	deviceId = params.deviceId
+func initAsIframeClient(params):
+	var queryParams = getQueryParamsDictionary()
+	deviceId = queryParams.deviceId
 	
 	if !deviceId: printerr('Missing device Id on query params')
-	return { "clientType": "iframe", "deviceId": deviceId }
-
+	clientInitData = { "clientType": "iframe", "deviceId": deviceId }
+	
+	var isWebEnv = OS.get_name() == "HTML5"
+	if !isWebEnv:
+		printerr('Trying to init as iframe client but env is not web')
+		return
+		
+	var isIframe = JavaScript.eval('window.self !== window.top')
+	if !isIframe: 
+		printerr('Trying to init iframe client but is not iframe')
+		return
+		
+	if not params.has('port') or !params.port: params.port = '3005'
+	
+	host = JavaScript.eval('window.location.hostname')
+	protocol = 'wss'
+	url = protocol + '://' + host + ':' + params.port + '/'
+	
+	
 func onInitialize(e, _from):
 	if e.assignedClientId == null or e.assignedClientId == "":
 		printerr("Missing clientId on initialize")
@@ -148,12 +175,32 @@ func reconnect() -> void:
 
 # UTILS:
 
+
+func getQueryParamsDictionary():
+	var queryParams = {}
+	if Engine.has_singleton("JavaScript"):
+		var query_string = JavaScript.eval("window.location.search.substring(1);")
+		
+		if query_string.empty():
+			return queryParams  # Return empty dictionary if no query string
+
+		var pairs = query_string.split("&")
+		
+		for pair in pairs:
+			var key_value = pair.split("=")
+			if key_value.size() == 2:
+				queryParams[key_value[0]] = key_value[1]
+	
+	return queryParams
+	
+	
 func ascii_to_char(ascii_code):
 	var char_map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~"
 	for i in range(char_map.length()):
 		if ascii_code == ord(char_map[i]):
 			return char_map[i]
 	return null
+
 
 func urlEncode(s):
 	var result = ""
@@ -168,6 +215,7 @@ func urlEncode(s):
 		else:
 			result += "%" + "%02X" % byte
 	return result
+
 
 func objectToDictionary(obj):
 	var result = {}
