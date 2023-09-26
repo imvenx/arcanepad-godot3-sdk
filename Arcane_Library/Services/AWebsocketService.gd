@@ -17,16 +17,43 @@ func _init(_url: String, _deviceType: String) -> void:
 	deviceType = _deviceType
 	initWebsocket()
 
+
 func initWebsocket():
-	clientInitData = { "clientType": "external", "deviceType": deviceType, "deviceId": "godot3-dev" }
+	var clientInitData = getClientInitData()
 	
 	var stringifiedClientInitData = to_json(clientInitData)
 	print(stringifiedClientInitData)
 	var encodedClientInitData = urlEncode(stringifiedClientInitData)
 	url = url + "?clientInitData=" + encodedClientInitData
 	connectToServer(url)
-#	on("Initialize", self, "onInitialize")
 	Arcane.signals.connect('Initialize', self, 'onInitialize')
+
+func getQueryParamsDictionary():
+	var queryParams = {}
+	if Engine.has_singleton("JavaScript"):
+		var query_string = JavaScript.eval("window.location.search.substring(1);")
+		
+		if query_string.empty():
+			return queryParams  # Return empty dictionary if no query string
+
+		var pairs = query_string.split("&")
+		
+		for pair in pairs:
+			var key_value = pair.split("=")
+			if key_value.size() == 2:
+				queryParams[key_value[0]] = key_value[1]
+	
+	return queryParams
+
+func getClientInitData():
+	
+	if !Arcane.isIframe: return { "clientType": "external", "deviceType": deviceType }
+	
+	var params = getQueryParamsDictionary()
+	deviceId = params.deviceId
+	
+	if !deviceId: printerr('Missing device Id on query params')
+	return { "clientType": "iframe", "deviceId": deviceId }
 
 func onInitialize(e, _from):
 	if e.assignedClientId == null or e.assignedClientId == "":
@@ -35,9 +62,11 @@ func onInitialize(e, _from):
 	if e.assignedDeviceId == null or e.assignedDeviceId == "":
 		printerr("Missing deviceId on initialize")
 		return
+		
 	clientId = e["assignedClientId"]
 	deviceId = e["assignedDeviceId"]
 	print("Client initialized with clientId: %s and deviceId: %s" % [clientId, deviceId])
+
 
 func connectToServer(_url:String) -> void:
 	print("connecting  to server: ", _url)
@@ -51,18 +80,23 @@ func connectToServer(_url:String) -> void:
 		print("Unable to connect")
 		set_process(false)
 
+
 func _closed(was_clean = false):
 	print("Closed, clean: ", was_clean)
 	set_process(false)
 
+
 func _connected(proto = ""):
 	print("Connected with protocol: ", proto)
+
 
 func _process(_delta: float) -> void:
 	ws.poll()
 
+
 func onOpen() -> void:
 	print("WebSocket connection opened.")
+
 
 func onClose(was_clean: bool, code: int, reason: String) -> void:
 	if was_clean:
@@ -72,8 +106,10 @@ func onClose(was_clean: bool, code: int, reason: String) -> void:
 		yield(get_tree().create_timer(float(reconnection_delay_miliseconds) / 1000.0), "timeout")
 		reconnect()
 
+
 func onError():
 	print("Error on ws connection")
+
 
 func onMessage() -> void:
 	var jsonData = ws.get_peer(1).get_packet().get_string_from_utf8()
@@ -81,18 +117,6 @@ func onMessage() -> void:
 #	print('received event: ', arcaneMessageFrom.e.name)
 	Arcane.signals.emit_signal(arcaneMessageFrom.e.name, arcaneMessageFrom.e, arcaneMessageFrom.from)
 
-
-#func on(eventName: String, object:Object, functionName:String) -> void:
-#	var callback = funcref(object,functionName)
-#	if not events.has(eventName): events[eventName] = []
-#	events[eventName].append(callback)
-
-
-#func trigger(eventName:String, event):
-#	if events.has(eventName):
-#		for callback in events[eventName]:
-#			if callback is FuncRef:
-#				callback.call_func(event)	
 
 func emit(event: AEvents.ArcaneBaseEvent, to: Array) -> void:
 	var msg = AEvents.ArcaneMessageTo.new(event, to)
@@ -103,29 +127,17 @@ func emit(event: AEvents.ArcaneBaseEvent, to: Array) -> void:
 	print(msgJson)
 	ws.get_peer(1).put_packet(msgJson.to_utf8())
 
+
 func emitToViews(e):
 	emit(e, Arcane.iframeViewsIds)
 
 func emitToPads(e):
 	emit(e, Arcane.iframePadsIds)
 
-#func off(eventName: String, object:Object, functionName:String) -> void:
-#	var callback = funcref(object, functionName)
-#	if not events.has(eventName):
-#		return
-#	if callback:
-#		events[eventName].erase(callback)
-#		if events[eventName].size() == 0:
-#			events.erase(eventName)
-#	else:
-#		events.erase(eventName)
-
-#func offAll(eventName: String) -> void:
-#	if events.has(eventName):
-#		events.erase(eventName)
 
 func close() -> void:
 	ws.close()
+
 
 func reconnect() -> void:
 	print("Attempting to reconnect...")
@@ -190,22 +202,3 @@ func objectToDictionary(obj):
 
 		result[name] = value
 	return result
-
-
-#func dictionaryToObject(dictionary):
-#	var className = dictionary["name"] + "Event"
-#	var instance = ClassDB.instance(className)
-#
-#	if instance == null:
-#		print("Failed to instantiate class: ", className)
-#		return null
-#
-#	for key in dictionary.keys():
-#		var method_name = "set_" + key
-#		if instance.has_method(method_name):
-#			instance.call(method_name, dictionary[key])
-#		else:
-#			print("Method does not exist: ", method_name)
-#
-#	return instance
-

@@ -3,6 +3,8 @@ extends Node
 # This is enum to prevent user edit on inspector :/
 #@export_enum("0.0.1") var LIBRARY_VERSION: String = "0.0.1" 
 
+var LIBRARY_VERSION = '0.0.1'
+
 #@export_enum("view", "pad")
 var deviceType: String = "view"
 
@@ -13,38 +15,51 @@ var internalViewsIds = []
 var internalPadsIds = []
 var iframeViewsIds = []
 var iframePadsIds = []
-var pad
+var pad:ArcanePad
+
+var isIframe
+var isWebEnv
 
 var signals = ASignals.new()
 
-
-func _ready():
-	var url = "wss://localhost:3005/"
+func init(_deviceType:String = 'view'):
+	
+	isWebEnv = OS.get_name() == "HTML5"
+	if isWebEnv: isIframe = JavaScript.eval('window.self !== window.top')
+	
+	var url = "wss://192.168.0.30:3005/"
+	
+	var protocol = 'wss'
+	var port = '3005'
+	var reverseProxyPort = '3009'
 	
 	if Engine.has_singleton("DebugMode") or ["Windows", "X11", "OSX"].has(OS.get_name()):
-		url = "ws://localhost:3009/"
-
+#		url = "ws://192.168.0.30:3009/"
+		protocol = 'ws'
+		port = reverseProxyPort
+		url = "wss://192.168.0.30:3009/"
+		
+	
+#	var currentUrl = JavaScript.eval("window.location.href")
+#	print('urrrrrrrrrrrrrrrrrrrrrrrrrrl!!!', currentUrl)
+	
+	deviceType = _deviceType
 	msg = AWebsocketService.new(url, deviceType)
 	self.add_child(msg)
+	
 
+func _ready():
+	print('Using ArcaneLibrary version ', LIBRARY_VERSION)
 	Arcane.signals.connect("Initialize", self, 'initialize')
 	Arcane.signals.connect("RefreshGlobalState", self, '_refreshGlobalState')
 
 func initialize(initializeEvent, _from):
 	refreshGlobalState(initializeEvent.globalState)
-	for p in pads:
-		print(to_json(p))
-		if p.deviceId == msg.deviceId:
-			pad = p
-			break
 
 	var initialState = AModels.InitialState.new(pads)
-#	msg.trigger('ArcaneClientInitialized', initialState)
 	signals.emit_signal('ArcaneClientInitialized', initialState)
-#	eventEmitter.emit('ArcaneClientInitialized', initialState)
-#	emit_signal("arcaneClientInitialized", initialState)
+	Arcane.signals.disconnect('Initialize', self, 'initialize')
 
-#	msg.off('Initialize', self, 'initialize')
 
 func _refreshGlobalState(e, _from):
 	refreshGlobalState(e.refreshedGlobalState)
@@ -53,11 +68,9 @@ func refreshGlobalState(refreshedGlobalState):
 	devices = refreshedGlobalState.devices
 	refreshClientsIds(devices)
 	pads = getPads(devices)
-#	pads[0].startGetQuaternion()
-#	pads[0].onGetQuaternion(asd)
-
-#func asd(e):
-#	print(e)
+	for p in pads: 
+		if p.deviceId == msg.deviceId:
+			 pad = p
 
 func refreshClientsIds(_devices: Array) -> void:
 	var _internalPadsIds: Array = []
