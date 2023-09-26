@@ -77,25 +77,22 @@ func onError():
 
 func onMessage() -> void:
 	var jsonData = ws.get_peer(1).get_packet().get_string_from_utf8()
-	
 	var arcaneMessageFrom = parse_json(jsonData)
 #	print('received event: ', arcaneMessageFrom.e.name)
 	Arcane.signals.emit_signal(arcaneMessageFrom.e.name, arcaneMessageFrom.e, arcaneMessageFrom.from)
-#	if events.has(arcaneMessageFrom["e"]["name"]):
-#		for callback in events[arcaneMessageFrom["e"]["name"]]:
-#			if callback is FuncRef:
-#				callback.call_funcv([arcaneMessageFrom["e"], arcaneMessageFrom["from"]])
+
 
 #func on(eventName: String, object:Object, functionName:String) -> void:
 #	var callback = funcref(object,functionName)
 #	if not events.has(eventName): events[eventName] = []
 #	events[eventName].append(callback)
 
-func trigger(eventName:String, event):
-	if events.has(eventName):
-		for callback in events[eventName]:
-			if callback is FuncRef:
-				callback.call_func(event)	
+
+#func trigger(eventName:String, event):
+#	if events.has(eventName):
+#		for callback in events[eventName]:
+#			if callback is FuncRef:
+#				callback.call_func(event)	
 
 func emit(event: AEvents.ArcaneBaseEvent, to: Array) -> void:
 	var msg = AEvents.ArcaneMessageTo.new(event, to)
@@ -112,20 +109,20 @@ func emitToViews(e):
 func emitToPads(e):
 	emit(e, Arcane.iframePadsIds)
 
-func off(eventName: String, object:Object, functionName:String) -> void:
-	var callback = funcref(object, functionName)
-	if not events.has(eventName):
-		return
-	if callback:
-		events[eventName].erase(callback)
-		if events[eventName].size() == 0:
-			events.erase(eventName)
-	else:
-		events.erase(eventName)
+#func off(eventName: String, object:Object, functionName:String) -> void:
+#	var callback = funcref(object, functionName)
+#	if not events.has(eventName):
+#		return
+#	if callback:
+#		events[eventName].erase(callback)
+#		if events[eventName].size() == 0:
+#			events.erase(eventName)
+#	else:
+#		events.erase(eventName)
 
-func offAll(eventName: String) -> void:
-	if events.has(eventName):
-		events.erase(eventName)
+#func offAll(eventName: String) -> void:
+#	if events.has(eventName):
+#		events.erase(eventName)
 
 func close() -> void:
 	ws.close()
@@ -211,3 +208,4 @@ func dictionaryToObject(dictionary):
 			print("Method does not exist: ", method_name)
 
 	return instance
+

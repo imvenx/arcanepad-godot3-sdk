@@ -4,9 +4,9 @@ class ArcaneClient:
 	var id: String
 	var clientType: String
 
-	func _init(id: String, clientType: String) -> void:
-		self.id = id
-		self.clientType = clientType
+	func _init(_id: String, _clientType: String) -> void:
+		self.id = _id
+		self.clientType = _clientType
 
 class ArcaneClientType:
 	const internal = "internal"
@@ -31,10 +31,10 @@ class ArcaneClientInitData:
 	var deviceType: String
 	var deviceId: String
 	
-	func _init(clientType:String, deviceType:String, deviceId:String):
-		self.clientType = clientType
-		self.deviceType = deviceType
-		self.deviceId = deviceId
+	func _init(_clientType:String, _deviceType:String, _deviceId:String):
+		self.clientType = _clientType
+		self.deviceType = _deviceType
+		self.deviceId = _deviceId
 
 class AssignedDataInitEvent:
 	var eventTag: String = "init"
@@ -47,21 +47,21 @@ class InitIframeQueryParams:
 class GlobalState:
 	var devices = []
 
-	func _init(devices) -> void:
-		self.devices = devices
+	func _init(_devices) -> void:
+		self.devices = _devices
 
 class InitialState:
 	var pads = []
 
-	func _init(pads) -> void:
-		self.pads = pads
+	func _init(_pads) -> void:
+		self.pads = _pads
 
 class ArcaneUser:
 	var id: String
 	var name: String
 	var color: String
 
-	func _init(id: String, name: String, color: String) -> void:
-		self.id = id
-		self.name = name
-		self.color = color
+	func _init(_id: String, _name: String, _color: String) -> void:
+		self.id = _id
+		self.name = _name
+		self.color = _color

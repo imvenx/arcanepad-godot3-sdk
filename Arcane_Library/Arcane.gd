@@ -44,7 +44,7 @@ func initialize(initializeEvent, _from):
 #	eventEmitter.emit('ArcaneClientInitialized', initialState)
 #	emit_signal("arcaneClientInitialized", initialState)
 
-	msg.off('Initialize', self, 'initialize')
+#	msg.off('Initialize', self, 'initialize')
 
 func _refreshGlobalState(e, _from):
 	refreshGlobalState(e.refreshedGlobalState)

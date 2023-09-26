@@ -3,6 +3,7 @@ extends Node
 
 var pad:ArcanePad
 var padQuaternion = Quat()
+onready var meshChild = get_child(0)
 
 func initialize(_pad:ArcanePad) -> void:
 	print("Pad user!!", _pad.user.name)
@@ -16,17 +17,22 @@ func initialize(_pad:ArcanePad) -> void:
 	pad.addSignal('Left')
 	pad.connect('Left', self, 'onLeft')
 	
-func _process(delta):
-	self.transform.basis = Basis(padQuaternion)
+	pad.connect('OpenArcaneMenu', self, 'onOpenArcaneMenu')
 	
-func onLeft(e):
+func _process(_delta):
+	meshChild.transform.basis = Basis(padQuaternion)
+	
+func onLeft(_e):
 	print("Left!", pad.iframeId)
 
-func onGetQuaternion(e):
-	padQuaternion.x = -e.x
-	padQuaternion.y = -e.y
-	padQuaternion.z = e.z
-	padQuaternion.w = e.w
+func onGetQuaternion(q):
+	padQuaternion.x = -q.x
+	padQuaternion.y = -q.y
+	padQuaternion.z = q.z
+	padQuaternion.w = q.w
+	
+func onOpenArcaneMenu(_e):
+	print('Menu opened')
 
 func _exit_tree():
 #	pad.dispose()
