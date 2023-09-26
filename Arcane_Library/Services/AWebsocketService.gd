@@ -174,7 +174,7 @@ func objectToDictionary(obj):
 			print("Method get() not found for ", name)
 
 		if value == null:
-			print("Property is null: ", name)
+#			print("Property is null: ", name)
 			continue
 
 		if value is Object:
@@ -192,20 +192,20 @@ func objectToDictionary(obj):
 	return result
 
 
-func dictionaryToObject(dictionary):
-	var className = dictionary["name"] + "Event"
-	var instance = ClassDB.instance(className)
-
-	if instance == null:
-		print("Failed to instantiate class: ", className)
-		return null
-
-	for key in dictionary.keys():
-		var method_name = "set_" + key
-		if instance.has_method(method_name):
-			instance.call(method_name, dictionary[key])
-		else:
-			print("Method does not exist: ", method_name)
-
-	return instance
+#func dictionaryToObject(dictionary):
+#	var className = dictionary["name"] + "Event"
+#	var instance = ClassDB.instance(className)
+#
+#	if instance == null:
+#		print("Failed to instantiate class: ", className)
+#		return null
+#
+#	for key in dictionary.keys():
+#		var method_name = "set_" + key
+#		if instance.has_method(method_name):
+#			instance.call(method_name, dictionary[key])
+#		else:
+#			print("Method does not exist: ", method_name)
+#
+#	return instance
 

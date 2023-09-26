@@ -11,8 +11,12 @@ var isConnected: bool
 signal GetQuaternion(quaternion)
 signal GetRotationEuler(rotationEuler)
 signal GetPointer(point)
-signal OpenArcaneMenu()
-signal CloseArcaneMenu()
+
+signal OpenArcaneMenu(e)
+signal CloseArcaneMenu(e)
+
+signal IframePadConnect(e)
+signal IframePadDisconnect(e)
 
 
 func addSignal(signalName:String):
@@ -43,8 +47,8 @@ func _init(_deviceId: String, _internalId: String, _iframeId: String, _isConnect
 	
 func setupEvents():
 	
-#	Arcane.signals.connect("IframePadConnect", self, "_proxyEventConnect")
-#	Arcane.signals.connect("IframePadDisconnect", self, "_proxyEventDisconnect")
+	Arcane.signals.connect("IframePadConnect", self, "onIframePadConnect")
+	Arcane.signals.connect("IframePadDisconnect", self, "onIframePadDisconnect")
 #
 	Arcane.signals.connect("GetQuaternion", self, "onGetQuaternion")
 	Arcane.signals.connect("GetRotationEuler", self, "onGetRotationEuler")
@@ -53,47 +57,15 @@ func setupEvents():
 	Arcane.signals.connect("OpenArcaneMenu", self, "onOpenArcaneMenu")
 	Arcane.signals.connect("CloseArcaneMenu", self, "onCloseArcaneMenu")
 
-#func dispose():
-#	pass
-#	eventEmitter.dispose()
-#	Arcane.msg.offAll("GetQuaternion")
-#	Arcane.msg.off("IframePadConnect", self, "_proxyEventConnect")
-#	Arcane.msg.off("IframePadDisconnect", self, "_proxyEventDisconnect")
-	
-#	Arcane.msg.off("GetQuaternion", self, "_proxyEvent")
-	
-#	Arcane.msg.off("GetRotationEuler", self, "_proxyEvent")
-#
-#	Arcane.msg.off("GetPointer", self, "_proxyEvent")
-#
-#	Arcane.msg.off("OpenArcaneMenu", self, "_proxyEvent")
-#	Arcane.msg.off("CloseArcaneMenu", self, "_proxyEvent")
-	
-#func _proxyEventConnect(e, _from):
-#	_proxyEvent(e, e.iframeId)
-#
-#func _proxyEventDisconnect(e, _from):
-#	_proxyEvent(e, e.iframeId)
-#
-#func _proxyEvent(event, from):
-#	var fullEventName = event.name + '_' + from
-#	emit_signal(fullEventName, event)
-##	eventEmitter.emit(fullEventName, event)
-##	_triggerEvent(fullEventName, event)
-#
-##func _triggerEvent(eventNameWithId: String, event:Dictionary):
-##	if events.has(eventNameWithId):
-##		for callback in events[eventNameWithId]:
-##			if callback is Callable:
-##				callback.callv([event])	
-##				callback.callv([])	
 
-#func onConnect(callback: FuncRef):
-#	eventEmitter.on("IframePadConnect" + '_' + iframeId, callback)
-#
-#func onDisconnect(callback: FuncRef):
-#	eventEmitter.on("IframePadDisconnect" + '_' + iframeId, callback)
-#
+func onIframePadConnect(e, _from):
+	if(e.iframeId != iframeId): return
+	emit_signal("IframePadConnect", e)
+	
+func onIframePadDisconnect(e, _from):
+	if(e.iframeId != iframeId): return
+	emit_signal("IframePadDisconnect", e)
+	
 
 func startGetQuaternion():
 	Arcane.msg.emit(AEvents.StartGetQuaternionEvent.new(), internalIdList)

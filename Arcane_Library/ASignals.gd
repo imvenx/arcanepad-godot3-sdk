@@ -2,41 +2,62 @@ extends Node
 
 class_name ASignals
 
-signal ArcaneClientInitialized(initialState)
+# warning-ignore:unused_signal
+signal ArcaneClientInitialized(e, from)
+# warning-ignore:unused_signal
+signal Initialize(e, from)
+# warning-ignore:unused_signal
+signal UpdateUser(e, from)
 
-signal Initialize(assignedClientId, assignedDeviceId, globalState)
-signal UpdateUser(user)
+# warning-ignore:unused_signal
+signal OpenArcaneMenu(e, from)
+# warning-ignore:unused_signal
+signal CloseArcaneMenu(e, from)
 
-signal OpenArcaneMenu
-signal CloseArcaneMenu
+# warning-ignore:unused_signal
+signal ClientConnect(e, from)
+# warning-ignore:unused_signal
+signal ClientDisconnect(e, from)
 
-signal ClientConnect(clientId, clientType)
-signal ClientDisconnect(clientId, clientType)
+# warning-ignore:unused_signal
+signal IframePadConnect(e, from)
 
-signal IframePadConnect(clientId, internalId, deviceId)
+# warning-ignore:unused_signal
+signal IframePadDisconnect(e, from)
 
-signal IframePadDisconnect(IframeId, DeviceId)
-
-signal StartGetQuaternion
-signal StopGetQuaternion
-#signal GetQuaternion(w, x, y, z)
+# warning-ignore:unused_signal
+signal StartGetQuaternion(e, from)
+# warning-ignore:unused_signal
+signal StopGetQuaternion(e, from)
+# warning-ignore:unused_signal
 signal GetQuaternion(e, from)
-signal CalibrateQuaternion
+# warning-ignore:unused_signal
+signal CalibrateQuaternion(e, from)
 
-signal StartGetRotationEuler
-signal StopGetRotationEuler
-signal GetRotationEuler(x, y, z)
+# warning-ignore:unused_signal
+signal StartGetRotationEuler(e, from)
+# warning-ignore:unused_signal
+signal StopGetRotationEuler(e, from)
+# warning-ignore:unused_signal
+signal GetRotationEuler(e, from)
 
-signal StartGetPointer
-signal StopGetPointer
-signal GetPointer(x, y)
+# warning-ignore:unused_signal
+signal StartGetPointer(e, from)
+# warning-ignore:unused_signal
+signal StopGetPointer(e, from)
+# warning-ignore:unused_signal
+signal GetPointer(e, from)
 
-signal CalibratePointer
-signal Vibrate(milliseconds)
-signal RefreshGlobalState(refreshedGlobalState)
+# warning-ignore:unused_signal
+signal CalibratePointer(e, from)
+# warning-ignore:unused_signal
+signal Vibrate(e, from)
+# warning-ignore:unused_signal
+signal RefreshGlobalState(e, from)
 
 func addSignal(signalName:String): 
 	for s in get_signal_list():
 		if(s.name == signalName): return
 		
 	add_user_signal(signalName)
+

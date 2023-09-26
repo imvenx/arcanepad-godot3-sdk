@@ -5,8 +5,6 @@ var gameStarted := false
 var isGamePaused := false
 var playerScene = preload("res://Player/Player.tscn")
 
-#onready var Arcane = get_node('/root/Arcane')
-signal IframePadConnect
 func _ready():
 	Arcane.signals.connect("ArcaneClientInitialized", self, "onArcaneClientInitialized")
 
