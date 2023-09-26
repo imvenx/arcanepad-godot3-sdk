@@ -25,13 +25,6 @@ func _init(params) -> void:
 
 func initWebsocket(params):
 	
-#	if params.has('deviceType'): deviceType = params.deviceType 
-#	else: deviceType = 'view'
-#
-#	ipOctets = params.ipOctets
-#	port = params.port
-#	reverseProxyPort = params.reverseProxyPort
-	
 	if Engine.has_singleton("DebugMode") or ["Windows", "X11", "OSX"].has(OS.get_name()):
 		initAsExternalClient(params)
 		
@@ -79,7 +72,7 @@ func initAsIframeClient(params):
 	
 	host = JavaScript.eval('window.location.hostname')
 	protocol = 'wss'
-	url = protocol + '://' + host + ':' + params.port + '/'
+	url = protocol + '://' + host + ':' + params.port + '/'	
 	
 	
 func onInitialize(e, _from):
@@ -93,6 +86,12 @@ func onInitialize(e, _from):
 	clientId = e["assignedClientId"]
 	deviceId = e["assignedDeviceId"]
 	print("Client initialized with clientId: %s and deviceId: %s" % [clientId, deviceId])
+	
+	
+	for d in Arcane.devices:
+		if(d.id == deviceId):
+			deviceType = d.deviceType
+			writeToScreen(d.deviceType)
 
 
 func connectToServer(_url:String) -> void:
@@ -250,3 +249,14 @@ func objectToDictionary(obj):
 
 		result[name] = value
 	return result
+
+
+var textPosX: = 30
+var textPosY = 30
+func writeToScreen(text:String):
+	var label = Label.new() 
+	label.text = text 
+	label.add_color_override("font_color", Color(0.2, 0.2, 0.2))
+	add_child(label)  
+	label.rect_position = Vector2(textPosX, textPosY) 
+	textPosY += 20
