@@ -6,7 +6,6 @@ var isGamePaused := false
 var playerScene = preload("res://Player/Player.tscn")
 
 func _ready():
-	
 	var initParams = { 'arcaneCode': '0.30' }
 	Arcane.init(initParams)
 	Arcane.signals.connect("ArcaneClientInitialized", self, "onArcaneClientInitialized")
@@ -18,6 +17,9 @@ func onArcaneClientInitialized(initialState):
 		
 	Arcane.signals.connect("IframePadConnect", self, "onIframePadConnect")
 	Arcane.signals.connect("IframePadDisconnect", self, "onIframePadDisconnect")
+	
+	Arcane.utils.writeToScreen(Arcane.msg.deviceType)
+	if Arcane.msg.deviceType == 'pad': get_tree().change_scene("res://Pad/Pad.tscn")
 
 
 func onIframePadConnect(e, _from):

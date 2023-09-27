@@ -8,6 +8,7 @@ var LIBRARY_VERSION = '0.0.1'
 #@export_enum("view", "pad")
 #var deviceType: String = "view"
 
+var utils: AUtils
 var msg: AWebsocketService
 var devices = []
 var pads = []
@@ -28,22 +29,27 @@ func init(params = {
 	'reverseProxyPort': '3009',
 	'arcaneCode': '',
 	}):
+		
+	utils = AUtils.new()
+	self.add_child(utils)
 	
 	msg = AWebsocketService.new(params)
 	self.add_child(msg)
 	
-
-func _ready():
 	print('Using ArcaneLibrary version ', LIBRARY_VERSION)
-	Arcane.signals.connect("Initialize", self, 'initialize')
+	Arcane.signals.connect("Initialize", self, 'onInitialize')
 	Arcane.signals.connect("RefreshGlobalState", self, '_refreshGlobalState')
+	
 
-func initialize(initializeEvent, _from):
+func onInitialize(initializeEvent, _from):
+	
+	msg.onInitialize(initializeEvent)
+	
 	refreshGlobalState(initializeEvent.globalState)
 
 	var initialState = AModels.InitialState.new(pads)
 	signals.emit_signal('ArcaneClientInitialized', initialState)
-	Arcane.signals.disconnect('Initialize', self, 'initialize')
+	Arcane.signals.disconnect('Initialize', self, 'onInitialize')
 
 
 func _refreshGlobalState(e, _from):

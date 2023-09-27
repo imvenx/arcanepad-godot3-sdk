@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="AnimatedTexture" id=1]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Sprite" type="Sprite" parent="."]
+position = Vector2( 257, 281 )
+scale = Vector2( -182.429, 168.989 )
+texture = SubResource( 1 )
+
+[node name="Sprite2" type="Sprite" parent="."]
+position = Vector2( 715, 273 )
+scale = Vector2( -182.429, 168.989 )
+texture = SubResource( 1 )
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+margin_left = 324.0
+margin_top = 86.0
+margin_right = 438.0
+margin_bottom = 124.0
+rect_scale = Vector2( 3, 3 )
+text = "Gamepad Scene"

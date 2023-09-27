@@ -6,10 +6,8 @@ var padQuaternion = Quat()
 onready var meshChild = get_child(0)
 
 func initialize(_pad:ArcanePad) -> void:
-	print("Pad user!!", _pad.user.name)
+	prints("Pad user", _pad.user.name, "initialized")
 	pad = _pad
-	
-#	Arcane.signals.connect('Left', self, 'onLeft')
 	
 	pad.startGetQuaternion()
 	

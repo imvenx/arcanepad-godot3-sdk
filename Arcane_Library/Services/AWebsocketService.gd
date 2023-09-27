@@ -24,7 +24,6 @@ func _init(params) -> void:
 
 
 func initWebsocket(params):
-	
 	if Engine.has_singleton("DebugMode") or ["Windows", "X11", "OSX"].has(OS.get_name()):
 		initAsExternalClient(params)
 		
@@ -32,10 +31,9 @@ func initWebsocket(params):
 
 	var stringifiedClientInitData = to_json(clientInitData)
 	print(stringifiedClientInitData)
-	var encodedClientInitData = urlEncode(stringifiedClientInitData)
+	var encodedClientInitData = Arcane.utils.urlEncode(stringifiedClientInitData)
 	url = url + "?clientInitData=" + encodedClientInitData
 	connectToServer(url)
-	Arcane.signals.connect('Initialize', self, 'onInitialize')
 
 
 func initAsExternalClient(params):
@@ -47,12 +45,13 @@ func initAsExternalClient(params):
 	host = '192.168.' + params.arcaneCode
 	if not params.has('reverseProxyPort'): params['reverseProxyPort'] = '3009'
 	if not params.has('deviceType'): params['deviceType'] = 'view'
+	deviceType = params.deviceType
 	url = protocol + '://' + host + ':' + params.reverseProxyPort + '/'
-	clientInitData = { "clientType": "external", "deviceType": params.deviceType }
+	clientInitData = { "clientType": "external", "deviceType": deviceType }
 	
 	
 func initAsIframeClient(params):
-	var queryParams = getQueryParamsDictionary()
+	var queryParams = Arcane.utils.getQueryParamsDictionary()
 	deviceId = queryParams.deviceId
 	
 	if !deviceId: printerr('Missing device Id on query params')
@@ -75,7 +74,9 @@ func initAsIframeClient(params):
 	url = protocol + '://' + host + ':' + params.port + '/'	
 	
 	
-func onInitialize(e, _from):
+# This is being called from Arcane.onInitialize, since the order of signals wasn't
+# being respected and that would break initialization
+func onInitialize(e):
 	if e.assignedClientId == null or e.assignedClientId == "":
 		printerr("Missing clientId on initialize")
 		return
@@ -85,13 +86,12 @@ func onInitialize(e, _from):
 		
 	clientId = e["assignedClientId"]
 	deviceId = e["assignedDeviceId"]
-	print("Client initialized with clientId: %s and deviceId: %s" % [clientId, deviceId])
-	
 	
 	for d in Arcane.devices:
 		if(d.id == deviceId):
 			deviceType = d.deviceType
-			writeToScreen(d.deviceType)
+			
+	prints("Client initialized. clientId:",clientId, "and deviceId:", deviceId, "deviceType:", deviceType)
 
 
 func connectToServer(_url:String) -> void:
@@ -103,12 +103,13 @@ func connectToServer(_url:String) -> void:
 	ws.connect("data_received", self, "onMessage")
 	var err = ws.connect_to_url(_url, ["lws-mirror-protocol"])
 	if err != OK:
-		print("Unable to connect")
+		printerr("Unable to connect")
 		set_process(false)
 
 
 func _closed(was_clean = false):
-	print("Closed, clean: ", was_clean)
+	if was_clean: print("Closed, clean: ", was_clean)
+	else: printerr("Closed, clean: ", was_clean)
 	set_process(false)
 
 
@@ -148,7 +149,7 @@ func emit(event: AEvents.ArcaneBaseEvent, to: Array) -> void:
 	var msg = AEvents.ArcaneMessageTo.new(event, to)
 	print("Sending message: ", msg.e.name, " to: ", to)
 
-	var msgDict = objectToDictionary(msg)
+	var msgDict = Arcane.utils.objectToDictionary(msg)
 	var msgJson = to_json(msgDict)
 	print(msgJson)
 	ws.get_peer(1).put_packet(msgJson.to_utf8())
@@ -168,95 +169,3 @@ func close() -> void:
 func reconnect() -> void:
 	print("Attempting to reconnect...")
 	connectToServer(url)
-
-
-
-
-# UTILS:
-
-
-func getQueryParamsDictionary():
-	var queryParams = {}
-	if Engine.has_singleton("JavaScript"):
-		var query_string = JavaScript.eval("window.location.search.substring(1);")
-		
-		if query_string.empty():
-			return queryParams  # Return empty dictionary if no query string
-
-		var pairs = query_string.split("&")
-		
-		for pair in pairs:
-			var key_value = pair.split("=")
-			if key_value.size() == 2:
-				queryParams[key_value[0]] = key_value[1]
-	
-	return queryParams
-	
-	
-func ascii_to_char(ascii_code):
-	var char_map = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~"
-	for i in range(char_map.length()):
-		if ascii_code == ord(char_map[i]):
-			return char_map[i]
-	return null
-
-
-func urlEncode(s):
-	var result = ""
-	var utf8_bytes = s.to_utf8()
-	for i in range(utf8_bytes.size()):
-		var byte = utf8_bytes[i]
-		var byte_as_char = ascii_to_char(byte)
-		if byte_as_char:
-			result += byte_as_char
-		elif byte == 32:  # ASCII for space
-			result += "+"
-		else:
-			result += "%" + "%02X" % byte
-	return result
-
-
-func objectToDictionary(obj):
-	var result = {}
-	if obj is Array or typeof(obj) in [TYPE_REAL, TYPE_STRING, TYPE_INT, TYPE_BOOL]:
-		return obj
-
-	for property in obj.get_property_list():
-		var name = property.name
-		if name in ["script"]:
-			continue
-
-		var value = null
-		if obj.has_method("get"):
-			value = obj.get(name)
-		else:
-			print("Method get() not found for ", name)
-
-		if value == null:
-#			print("Property is null: ", name)
-			continue
-
-		if value is Object:
-			value = objectToDictionary(value)
-		elif value is Array:
-			var newArray = []
-			for item in value:
-				if item is Object:
-					newArray.append(objectToDictionary(item))
-				else:
-					newArray.append(item)
-			value = newArray
-
-		result[name] = value
-	return result
-
-
-var textPosX: = 30
-var textPosY = 30
-func writeToScreen(text:String):
-	var label = Label.new() 
-	label.text = text 
-	label.add_color_override("font_color", Color(0.2, 0.2, 0.2))
-	add_child(label)  
-	label.rect_position = Vector2(textPosX, textPosY) 
-	textPosY += 20
