@@ -29,6 +29,14 @@ func initWebsocket(params):
 		
 	else: initAsIframeClient(params)
 
+	if clientInitData == null: 
+		printerr("ArcaneError: clientInitData is null on initWebSocket")
+		return
+		
+	if url == null or url == "":
+		printerr("ArcaneError: url is null or empty on initWebSocket")
+		return
+		
 	var stringifiedClientInitData = to_json(clientInitData)
 	print(stringifiedClientInitData)
 	var encodedClientInitData = Arcane.utils.urlEncode(stringifiedClientInitData)
@@ -37,11 +45,11 @@ func initWebsocket(params):
 
 
 func initAsExternalClient(params):
-	protocol = 'ws'
 	if not params.has('arcaneCode') or !params.arcaneCode:
-		printerr('Arcane Error: Need to specify arcaneCode on init i.e: Arcane.init({ arcaneCode: 0.64 }) to get the arcane code go to ArcanePad App, it should be displayed on top or on connect option. Go to https://arcanepad.com/docs for more information')
+		printerr('Arcane Error: Need to specify arcaneCode on init i.e: Arcane.init({ arcaneCode: 0.64 }) to get the arcane code go to ArcanePad App, it should be displayed on top or on connect option.')
 		return
-		
+	
+	protocol = 'ws'
 	host = '192.168.' + params.arcaneCode
 	if not params.has('reverseProxyPort'): params['reverseProxyPort'] = '3009'
 	if not params.has('deviceType'): params['deviceType'] = 'view'
@@ -51,11 +59,6 @@ func initAsExternalClient(params):
 	
 	
 func initAsIframeClient(params):
-	var queryParams = Arcane.utils.getQueryParamsDictionary()
-	deviceId = queryParams.deviceId
-	
-	if !deviceId: printerr('Missing device Id on query params')
-	clientInitData = { "clientType": "iframe", "deviceId": deviceId }
 	
 	var isWebEnv = OS.get_name() == "HTML5"
 	if !isWebEnv:
@@ -66,6 +69,15 @@ func initAsIframeClient(params):
 	if !isIframe: 
 		printerr('Trying to init iframe client but is not iframe')
 		return
+		
+	var queryParams = Arcane.utils.getQueryParamsDictionary()
+	deviceId = queryParams.deviceId
+	
+	if !deviceId: 
+		printerr('Missing deviceId on query params on initAsIframeClient')
+		return
+		
+	clientInitData = { "clientType": "iframe", "deviceId": deviceId }
 		
 	if not params.has('port') or !params.port: params.port = '3005'
 	
