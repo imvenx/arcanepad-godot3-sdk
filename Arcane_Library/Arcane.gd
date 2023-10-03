@@ -27,7 +27,7 @@ func init(params = {
 	'deviceType': 'view',
 	'port': '3005',
 	'reverseProxyPort': '3009',
-	'arcaneCode': '',
+#	'arcaneCode': '',
 	}):
 		
 	utils = AUtils.new()

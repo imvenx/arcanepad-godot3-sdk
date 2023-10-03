@@ -6,8 +6,8 @@ var isGamePaused := false
 var playerScene = preload("res://Player/Player.tscn")
 
 func _ready():
-	var initParams = { 'arcaneCode': '0.30' }
-	Arcane.init(initParams)
+#	var initParams = { 'arcaneCode': '0.30' }
+	Arcane.init()
 	Arcane.signals.connect("ArcaneClientInitialized", self, "onArcaneClientInitialized")
 
 

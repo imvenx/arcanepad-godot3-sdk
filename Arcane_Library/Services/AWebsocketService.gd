@@ -45,12 +45,13 @@ func initWebsocket(params):
 
 
 func initAsExternalClient(params):
-	if not params.has('arcaneCode') or !params.arcaneCode:
-		printerr('Arcane Error: Need to specify arcaneCode on init i.e: Arcane.init({ arcaneCode: 0.64 }) to get the arcane code go to ArcanePad App, it should be displayed on top or on connect option.')
-		return
+#	if not params.has('arcaneCode') or !params.arcaneCode:
+#		printerr('Arcane Error: Need to specify arcaneCode on init i.e: Arcane.init({ arcaneCode: 0.64 }) to get the arcane code go to ArcanePad App, it should be displayed on top or on connect option.')
+#		return
 	
 	protocol = 'ws'
-	host = '192.168.' + params.arcaneCode
+	host = '127.0.0.1'
+#	host = '192.168.' + params.arcaneCode
 	if not params.has('reverseProxyPort'): params['reverseProxyPort'] = '3009'
 	if not params.has('deviceType'): params['deviceType'] = 'view'
 	deviceType = params.deviceType
