@@ -77,9 +77,6 @@ func objectToDictionary(obj):
 		result[name] = value
 	return result
 
-func _init():
-	writeToScreen('kalsjdalskjdkl')
-
 var textPosX: = 30
 var textPosY = 30
 func writeToScreen(text:String):
