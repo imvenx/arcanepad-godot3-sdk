@@ -18,6 +18,7 @@ var reverseProxyPort:String
 var ipOctets:String
 var url:String
 
+var clientType
 
 func _init(params) -> void:
 	initWebsocket(params)
@@ -56,7 +57,8 @@ func initAsExternalClient(params):
 	if not params.has('deviceType'): params['deviceType'] = 'view'
 	deviceType = params.deviceType
 	url = protocol + '://' + host + ':' + params.reverseProxyPort + '/'
-	clientInitData = { "clientType": "external", "deviceType": deviceType }
+	clientType = "external"
+	clientInitData = { "clientType": clientType, "deviceType": deviceType }
 	
 	
 func initAsIframeClient(params):
@@ -78,7 +80,8 @@ func initAsIframeClient(params):
 		printerr('Missing deviceId on query params on initAsIframeClient')
 		return
 		
-	clientInitData = { "clientType": "iframe", "deviceId": deviceId }
+	clientType = "iframe"
+	clientInitData = { "clientType": clientType, "deviceId": deviceId }
 		
 	if not params.has('port') or !params.port: params.port = '3005'
 	
