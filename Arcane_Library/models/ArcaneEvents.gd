@@ -114,7 +114,7 @@ class GetQuaternionEvent extends ArcaneBaseEvent:
 		z = _z
 
 
-class CalibrateQuaternion extends ArcaneBaseEvent:
+class CalibrateQuaternionEvent extends ArcaneBaseEvent:
 	func _init().("CalibrateQuaternion"): pass
 
 class StartGetRotationEulerEvent extends ArcaneBaseEvent:
