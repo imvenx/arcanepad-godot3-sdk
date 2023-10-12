@@ -1,0 +1,18 @@
+[gd_scene format=2]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+margin_left = 356.0
+margin_top = 27.0
+margin_right = 470.0
+margin_bottom = 65.0
+rect_scale = Vector2( 3, 3 )
+text = "Gamepad Scene"
+
+[node name="Button" type="Button" parent="."]
+margin_left = 51.0
+margin_top = 110.0
+margin_right = 223.0
+margin_bottom = 215.0
+text = "Calibrate Quaternion"

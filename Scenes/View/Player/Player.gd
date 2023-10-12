@@ -10,9 +10,12 @@ func initialize(_pad:ArcanePad) -> void:
 	pad = _pad
 	
 	pad.startGetQuaternion()
+	pad.startGetPointer()
 	
 	# warning-ignore:RETURN_VALUE_DISCARDED
 	pad.connect('GetQuaternion', self, 'onGetQuaternion')
+	# warning-ignore:RETURN_VALUE_DISCARDED
+	pad.connect('GetPointer', self, 'onGetPointer')
 	
 	pad.addSignal('Left')
 	
@@ -49,6 +52,10 @@ func onGetQuaternion(q):
 	padQuaternion.z = q.z
 	padQuaternion.w = q.w
 	
+	
+func onGetPointer(e):
+	prints(e)
+
 	
 func onOpenArcaneMenu(_e):
 	print('Menu opened by ', pad.user.name)

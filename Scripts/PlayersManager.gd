@@ -3,24 +3,24 @@ extends Node
 var players := [] 
 var gameStarted := false
 var isGamePaused := false
-var playerScene = preload("res://Player/Player.tscn")
+var playerScene = preload("res://Scenes/View/Player/Player.tscn")
 
-func _ready():
+#func _ready():
 #	var initParams = { 'arcaneCode': '0.30' }
-	Arcane.init()
-	Arcane.signals.connect("ArcaneClientInitialized", self, "onArcaneClientInitialized")
+#	Arcane.init()
+#	Arcane.signals.connect("ArcaneClientInitialized", self, "onArcaneClientInitialized")
 
 
-func onArcaneClientInitialized(initialState):
-	for pad in initialState.pads:
-		createPlayer(pad)
+func initViewScene(initialState):
 		
 	Arcane.signals.connect("IframePadConnect", self, "onIframePadConnect")
 	Arcane.signals.connect("IframePadDisconnect", self, "onIframePadDisconnect")
-	
-	Arcane.utils.writeToScreen(Arcane.msg.deviceType)
-	if Arcane.msg.deviceType == 'pad': get_tree().change_scene("res://Pad/Pad.tscn")
+#
+#	Arcane.utils.writeToScreen(Arcane.msg.deviceType)
+#	if Arcane.msg.deviceType == 'pad': get_tree().change_scene("res://Pad/Pad.tscn")
 
+	for pad in initialState.pads:
+		createPlayer(pad)
 
 func onIframePadConnect(e, _from):
 	var playerExists = false
