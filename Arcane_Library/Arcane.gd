@@ -64,7 +64,6 @@ func onInitialize(initializeEvent, _from):
 	Arcane.signals.disconnect('Initialize', self, 'onInitialize')
 
 func padInitialization(): 
-	Arcane.utils.writeToScreen("aaaaaaaaa")
 	
 	for p in pads: 
 		if p.deviceId == msg.deviceId:

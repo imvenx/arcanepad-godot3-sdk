@@ -126,8 +126,8 @@ func onCloseArcaneMenu(e, from):
 	emit_signal("CloseArcaneMenu", e)
 
 
-#func send(event: AEvents.ArcaneBaseEvent):
-#	Arcane.msg.emit(event, iframeIdList)
+func emit(event: AEvents.ArcaneBaseEvent):
+	Arcane.msg.emit(event, iframeIdList)
 #
 #func on(eventName: String, callback: FuncRef):
 #	var fullEventName = eventName + '_' + iframeId
