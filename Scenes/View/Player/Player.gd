@@ -54,7 +54,8 @@ func onGetQuaternion(q):
 	
 	
 func onGetPointer(e):
-	prints(e)
+#	prints(e)
+	pass
 
 	
 func onOpenArcaneMenu(_e):
@@ -66,6 +67,8 @@ func onCloseArcaneMenu(_e):
 	
 func onIframePadConnect(e):
 	print(e)
+	pass
 	
 func onIframePadDisconnect(e):
 	print(e)
+	pass

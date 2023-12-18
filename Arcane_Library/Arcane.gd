@@ -3,7 +3,7 @@ extends Node
 # This is enum to prevent user edit on inspector :/
 #@export_enum("0.0.1") var LIBRARY_VERSION: String = "0.0.1" 
 
-var LIBRARY_VERSION = '0.0.1'
+var LIBRARY_VERSION = '0.1.0'
 
 #@export_enum("view", "pad")
 #var deviceType: String = "view"
@@ -25,8 +25,8 @@ var signals = ASignals.new()
 
 var defaultParams = {
 	'deviceType': 'view',
-	'port': '3005',
-	'reverseProxyPort': '3009',
+	'port': '3685',
+	'reverseProxyPort': '3689',
 	'hideMouse': true,
 	'padOrientation': 'Landscape'
 #	'arcaneCode': '',
