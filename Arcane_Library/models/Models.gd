@@ -76,8 +76,8 @@ class ArcaneInitParams:
 	func _init(
 		_deviceType:String = 'view', 
 		_ipOctets:String = '', 
-		_port:String = '3005', 
-		_reverseProxyPort:String = '3009'
+		_port:String = '3685', 
+		_reverseProxyPort:String = '3689'
 	):
 		deviceType = _deviceType
 		ipOctets = _ipOctets

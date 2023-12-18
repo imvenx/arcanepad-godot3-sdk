@@ -53,7 +53,7 @@ func initAsExternalClient(params):
 	protocol = 'ws'
 	host = '127.0.0.1'
 #	host = '192.168.' + params.arcaneCode
-	if not params.has('reverseProxyPort'): params['reverseProxyPort'] = '3009'
+	if not params.has('reverseProxyPort'): params['reverseProxyPort'] = '3689'
 	if not params.has('deviceType'): params['deviceType'] = 'view'
 	deviceType = params.deviceType
 	url = protocol + '://' + host + ':' + params.reverseProxyPort + '/'
@@ -83,7 +83,7 @@ func initAsIframeClient(params):
 	clientType = "iframe"
 	clientInitData = { "clientType": clientType, "deviceId": deviceId }
 		
-	if not params.has('port') or !params.port: params.port = '3005'
+	if not params.has('port') or !params.port: params.port = '3685'
 	
 	host = JavaScript.eval('window.location.hostname')
 	protocol = 'wss'
