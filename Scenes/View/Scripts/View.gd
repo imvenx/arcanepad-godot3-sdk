@@ -5,13 +5,22 @@ var gameStarted := false
 var isGamePaused := false
 var playerScene = preload("res://Scenes/View/Player/Player.tscn")
 
-func initViewScene(initialState):
+func _ready():
+	initView()
+
+func initView():
+	
+	Arcane.init()
+	Arcane.signals.connect("ArcaneClientInitialized", self, "onArcaneClientInitialized")
 		
 	Arcane.signals.connect("IframePadConnect", self, "onIframePadConnect")
 	Arcane.signals.connect("IframePadDisconnect", self, "onIframePadDisconnect")
 
+
+func onArcaneClientInitialized(initialState):
 	for pad in initialState.pads:
 		createPlayer(pad)
+
 
 func onIframePadConnect(e, _from):
 	var playerExists = false

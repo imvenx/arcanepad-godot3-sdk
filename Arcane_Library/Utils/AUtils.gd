@@ -77,8 +77,10 @@ func objectToDictionary(obj):
 		result[name] = value
 	return result
 
+
 var textPosX: = 30
 var textPosY = 30
+
 func writeToScreen(text:String):
 	prints('writing to screen:', text)
 	var label = Label.new() 

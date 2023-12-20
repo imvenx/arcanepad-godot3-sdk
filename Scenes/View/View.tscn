@@ -1,14 +1,15 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Scenes/View/Scripts/PlayersManager.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/View/Scripts/View.gd" type="Script" id=1]
 
 [node name="Spatial" type="Spatial"]
 script = ExtResource( 1 )
 
 [node name="RichTextLabel" type="RichTextLabel" parent="."]
-margin_left = 122.0
-margin_top = 64.0
-margin_right = 296.0
-margin_bottom = 143.0
+margin_left = 411.0
+margin_top = 479.0
+margin_right = 541.0
+margin_bottom = 519.0
+rect_scale = Vector2( 3, 3 )
 tab_size = 8
-text = "Arcane Game Test"
+text = "View Scene"

@@ -4,6 +4,7 @@ extends Node
 var pad:ArcanePad
 var padQuaternion = Quat()
 onready var meshChild = get_child(0)
+onready var pointer = get_child(2)
 
 func initialize(_pad:ArcanePad) -> void:
 	prints("Pad user", _pad.user.name, "initialized")
@@ -32,6 +33,10 @@ func initialize(_pad:ArcanePad) -> void:
 	# warning-ignore:RETURN_VALUE_DISCARDED
 	pad.connect('IframePadDisconnect', self, 'onIframePadDisconnect')
 	
+	pad.addSignal("Attack")
+	# warning-ignore:RETURN_VALUE_DISCARDED
+	pad.connect("Attack", self, 'Attack')
+	
 	
 func _process(_delta):
 	meshChild.transform.basis = Basis(padQuaternion)
@@ -54,8 +59,12 @@ func onGetQuaternion(q):
 	
 	
 func onGetPointer(e):
-#	prints(e)
-	pass
+	var viewport_size = get_viewport().get_size()
+
+	var new_x = viewport_size.x * (e.x / 100.0)
+	var new_y = viewport_size.y * (e.y / 100.0)
+
+	pointer.position = Vector2(new_x, new_y)
 
 	
 func onOpenArcaneMenu(_e):
@@ -72,3 +81,10 @@ func onIframePadConnect(e):
 func onIframePadDisconnect(e):
 	print(e)
 	pass
+
+
+func Attack(e):
+	Arcane.utils.writeToScreen(pad.user.name + " Attacked")
+	print(pad.user.name + " Attacked!")
+	print(e)
+	pad.emit(Events.TakeDamageEvent.new())
