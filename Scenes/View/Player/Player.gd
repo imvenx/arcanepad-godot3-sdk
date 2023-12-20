@@ -52,6 +52,8 @@ func onLeft(_e):
 
 
 func onGetQuaternion(q):
+	if(q.w == null || q.x == null || q.y == null || q.z == null): return
+	
 	padQuaternion.x = -q.x
 	padQuaternion.y = -q.y
 	padQuaternion.z = q.z
@@ -59,6 +61,8 @@ func onGetQuaternion(q):
 	
 	
 func onGetPointer(e):
+	if(e.x == null || e.y == null): return
+	
 	var viewport_size = get_viewport().get_size()
 
 	var new_x = viewport_size.x * (e.x / 100.0)
