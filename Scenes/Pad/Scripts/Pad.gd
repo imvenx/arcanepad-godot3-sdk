@@ -38,5 +38,5 @@ func _on_Attack_pressed():
 
 
 func TakeDamage(e, from):
-	Arcane.pad.vibrate(500)
-	Arcane.utils.writeToScreen("ouch!")
+	Arcane.pad.vibrate(200)
+	Arcane.utils.writeToScreen("Taken " + str(e.damage) + " damage! Ouch!")

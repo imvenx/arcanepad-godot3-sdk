@@ -6,5 +6,7 @@ class AttackEvent extends AEvents.ArcaneBaseEvent:
 
 class TakeDamageEvent extends AEvents.ArcaneBaseEvent:
 	
-	func _init().("TakeDamage"):
-		pass
+	var damage: int
+	
+	func _init(_damage: int).("TakeDamage"):
+		damage = _damage

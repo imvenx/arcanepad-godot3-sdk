@@ -74,4 +74,4 @@ func Attack(e):
 	print(e)
 	
 	# EMIT CUSTOM EVENT TO THE PAD
-	pad.emit(Events.TakeDamageEvent.new())
+	pad.emit(Events.TakeDamageEvent.new(3))
