@@ -82,6 +82,10 @@ config/icon="res://icon.png"
 
 Arcane="*res://Arcane_Library/Arcane.gd"
 
+[debug]
+
+gdscript/warnings/return_value_discarded=false
+
 [editor]
 
 version_control_autoload_on_startup=true
