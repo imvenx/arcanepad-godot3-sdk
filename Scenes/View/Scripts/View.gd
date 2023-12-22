@@ -13,13 +13,13 @@ func initView():
 	Arcane.init()
 	
 	# LISTEN WHEN THIS CLIENT (THE VIEW) IS INITIALIZED
-	Arcane.signals.connect("ArcaneClientInitialized", self, "onArcaneClientInitialized")
+	Arcane.signals.connect(AEventName.ArcaneClientInitialized, self, "onArcaneClientInitialized")
 		
 	# LISTEN WHEN ANY GAMEPAD CONNECTS
-	Arcane.signals.connect("IframePadConnect", self, "onIframePadConnect")
+	Arcane.signals.connect(AEventName.IframePadConnect, self, "onIframePadConnect")
 	
 	# LISTEN WHEN ANY GAMEPAD DISCONNECTS
-	Arcane.signals.connect("IframePadDisconnect", self, "onIframePadDisconnect")
+	Arcane.signals.connect(AEventName.IframePadDisconnect, self, "onIframePadDisconnect")
 
 
 # CREATE A PLAYER FOR EACH GAMEPAD THAT WAS CONNECTED BEFORE THE VIEW HAD INITIALIZED
@@ -30,6 +30,7 @@ func onArcaneClientInitialized(initialState):
 
 # FOR EACH GAMEPAD THAT CONNECTS, CREATE A PLAYER IF DONT EXIST
 func onIframePadConnect(e, _from):
+	
 	var playerExists = false
 	for _player in players:
 		if _player.pad.iframeId == e.iframeId:
@@ -58,6 +59,10 @@ func onIframePadDisconnect(e, _from):
 
 
 func createPlayer(pad):
+	
+	# This prevents creating the player if our pad app haven't been loaded
+	if pad.iframeId == null || pad.iframeId == "": return
+	
 	var newPlayer = playerScene.instance()
 	print(newPlayer)
 	newPlayer.initialize(pad)

@@ -8,15 +8,22 @@ var iframeId: String
 var iframeIdList: Array
 var isConnected: bool
 
-signal GetQuaternion(quaternion)
-signal GetRotationEuler(rotationEuler)
-signal GetPointer(point)
+# warning-ignore:unused_signal
+signal _GetQuaternion(quaternion)
+# warning-ignore:unused_signal
+signal _GetRotationEuler(rotationEuler)
+# warning-ignore:unused_signal
+signal _GetPointer(point)
 
-signal OpenArcaneMenu(e)
-signal CloseArcaneMenu(e)
+# warning-ignore:unused_signal
+signal _OpenArcaneMenu(e)
+# warning-ignore:unused_signal
+signal _CloseArcaneMenu(e)
 
-signal IframePadConnect(e)
-signal IframePadDisconnect(e)
+# warning-ignore:unused_signal
+signal _IframePadConnect(e)
+# warning-ignore:unused_signal
+signal _IframePadDisconnect(e)
 
 
 func addSignal(signalName:String):
@@ -47,24 +54,24 @@ func _init(_deviceId: String, _internalId: String, _iframeId: String, _isConnect
 	
 func setupEvents():
 	
-	Arcane.signals.connect("IframePadConnect", self, "onIframePadConnect")
-	Arcane.signals.connect("IframePadDisconnect", self, "onIframePadDisconnect")
+	Arcane.signals.connect(AEventName.IframePadConnect, self, "onIframePadConnect")
+	Arcane.signals.connect(AEventName.IframePadDisconnect, self, "onIframePadDisconnect")
 #
-	Arcane.signals.connect("GetQuaternion", self, "onGetQuaternion")
-	Arcane.signals.connect("GetRotationEuler", self, "onGetRotationEuler")
-	Arcane.signals.connect("GetPointer", self, "onGetPointer")
+	Arcane.signals.connect(AEventName.GetQuaternion, self, "onGetQuaternion")
+	Arcane.signals.connect(AEventName.GetRotationEuler, self, "onGetRotationEuler")
+	Arcane.signals.connect(AEventName.GetPointer, self, "onGetPointer")
 #
-	Arcane.signals.connect("OpenArcaneMenu", self, "onOpenArcaneMenu")
-	Arcane.signals.connect("CloseArcaneMenu", self, "onCloseArcaneMenu")
+	Arcane.signals.connect(AEventName.OpenArcaneMenu, self, "onOpenArcaneMenu")
+	Arcane.signals.connect(AEventName.CloseArcaneMenu, self, "onCloseArcaneMenu")
 
 
 func onIframePadConnect(e, _from):
 	if(e.iframeId != iframeId): return
-	emit_signal("IframePadConnect", e)
+	emit_signal(AEventName.IframePadConnect, e)
 	
 func onIframePadDisconnect(e, _from):
 	if(e.iframeId != iframeId): return
-	emit_signal("IframePadDisconnect", e)
+	emit_signal(AEventName.IframePadDisconnect, e)
 	
 
 func startGetQuaternion():
@@ -75,7 +82,7 @@ func stopGetQuaternion():
 
 func onGetQuaternion(e, from):
 	if(from != internalId): return
-	emit_signal("GetQuaternion", e)
+	emit_signal(AEventName.GetQuaternion, e)
 
 func calibrateQuaternion():
 	Arcane.msg.emit(AEvents.CalibrateQuaternionEvent.new(), internalIdList)
@@ -89,7 +96,7 @@ func stopGetRotationEuler():
 
 func onGetRotationEuler(e, from):
 	if(from != internalId): return
-	emit_signal("GetRotationEuler", e)
+	emit_signal(AEventName.GetRotationEuler, e)
 
 
 func startGetPointer():
@@ -100,7 +107,7 @@ func stopGetPointer():
 
 func onGetPointer(e, from):
 	if(from != internalId): return
-	emit_signal("GetPointer", e)
+	emit_signal(AEventName.GetPointer, e)
 
 func calibratePointer(isTopLeft:bool):
 	Arcane.msg.emit(AEvents.CalibratePointerEvent.new(isTopLeft), internalIdList)
@@ -119,11 +126,11 @@ func vibrate(milliseconds: int):
 
 func onOpenArcaneMenu(e, from):
 	if(from != internalId): return
-	emit_signal("OpenArcaneMenu", e)
+	emit_signal(AEventName.OpenArcaneMenu, e)
 
 func onCloseArcaneMenu(e, from):
 	if(from != internalId): return
-	emit_signal("CloseArcaneMenu", e)
+	emit_signal(AEventName.CloseArcaneMenu, e)
 
 
 func emit(event: AEvents.ArcaneBaseEvent):

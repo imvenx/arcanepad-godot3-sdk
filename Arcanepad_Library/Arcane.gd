@@ -3,7 +3,7 @@ extends Node
 # This is enum to prevent user edit on inspector :/
 #@export_enum("0.0.1") var LIBRARY_VERSION: String = "0.0.1" 
 
-var LIBRARY_VERSION = '0.1.1'
+var LIBRARY_VERSION = '0.2.0'
 
 #@export_enum("view", "pad")
 #var deviceType: String = "view"
@@ -46,9 +46,14 @@ func init(providedParams = defaultParams):
 	msg = AWebsocketService.new(initParams)
 	self.add_child(msg)
 	
-	print('Using ArcaneLibrary version ', LIBRARY_VERSION)
-	Arcane.signals.connect("Initialize", self, 'onInitialize')
-	Arcane.signals.connect("RefreshGlobalState", self, '_refreshGlobalState')
+	print('')
+	print('<> <> <> <> <> <> <> <> <> <> <> <> <> <>')
+	print('  Using Arcanepad Library version ', LIBRARY_VERSION)
+	print('<> <> <> <> <> <> <> <> <> <> <> <> <> <>')
+	print('')
+	
+	Arcane.signals.connect(AEventName.Initialize, self, 'onInitialize')
+	Arcane.signals.connect(AEventName.RefreshGlobalState, self, '_refreshGlobalState')
 	
 
 func onInitialize(initializeEvent, _from):
@@ -60,8 +65,8 @@ func onInitialize(initializeEvent, _from):
 	elif msg.deviceType == "view": viewInitialization()
 	
 	var initialState = AModels.InitialState.new(pads)
-	signals.emit_signal('ArcaneClientInitialized', initialState)
-	Arcane.signals.disconnect('Initialize', self, 'onInitialize')
+	signals.emit_signal(AEventName.ArcaneClientInitialized, initialState)
+	Arcane.signals.disconnect(AEventName.Initialize, self, 'onInitialize')
 
 func padInitialization(): 
 	

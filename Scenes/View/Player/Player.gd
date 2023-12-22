@@ -13,10 +13,10 @@ func initialize(_pad:ArcanePad) -> void:
 	
 	
 	# LISTEN WHEN THIS GAMEPAD CONNECTS
-	pad.connect('IframePadConnect', self, 'onIframePadConnect')
+	pad.connect(AEventName.IframePadConnect, self, 'onIframePadConnect')
 	
 	# LISTEN WHEN THIS GAMEPAD DISCONNECTS
-	pad.connect('IframePadDisconnect', self, 'onIframePadDisconnect')
+	pad.connect(AEventName.IframePadDisconnect, self, 'onIframePadDisconnect')
 	
 	
 	# ASK FOR DEVICE ROTATION AND POINTER
@@ -24,13 +24,13 @@ func initialize(_pad:ArcanePad) -> void:
 	pad.startGetPointer()
 	
 	# LISTEN FOR DEVICE ROTATION AND POINTER
-	pad.connect('GetQuaternion', self, 'onGetQuaternion')
-	pad.connect('GetPointer', self, 'onGetPointer')
+	pad.connect(AEventName.GetQuaternion, self, 'onGetQuaternion')
+	pad.connect(AEventName.GetPointer, self, 'onGetPointer')
 	
 	
 	# LISTEN CUSTOM EVENT FROM PAD
-	pad.addSignal("Attack")
-	pad.connect("Attack", self, 'Attack')
+	pad.addSignal(EventName.Attack)
+	pad.connect(EventName.Attack, self, 'Attack')
 	
 	
 func _process(_delta):
@@ -41,11 +41,11 @@ func _exit_tree():
 	pad.queue_free()
 	
 	
-func onIframePadConnect(e):
-	print(e)
+func onIframePadConnect(_e):
+	pass
 	
-func onIframePadDisconnect(e):
-	print(e)
+func onIframePadDisconnect(_e):
+	pass
 	
 	
 func onGetQuaternion(q):

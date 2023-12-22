@@ -9,14 +9,14 @@ func initPad():
 	Arcane.init({'padOrientation': 'Portrait', 'deviceType': 'pad'})
 	
 	# LISTEN WHEN THIS CLIENT (GAMEPAD) IS INITIALIZED
-	Arcane.signals.connect("ArcaneClientInitialized", self, "onArcaneClientInitialized")
+	Arcane.signals.connect(AEventName.ArcaneClientInitialized, self, "onArcaneClientInitialized")
 	
 	
 func onArcaneClientInitialized(initialState):
 	
 	# LISTEN CUSTOM EVENT FROM THE VIEW
-	Arcane.signals.addSignal("TakeDamage")
-	Arcane.signals.connect("TakeDamage", self, "TakeDamage")
+	Arcane.signals.addSignal(EventName.TakeDamage)
+	Arcane.signals.connect(EventName.TakeDamage, self, "onTakeDamage")
 	
 	
 func _on_CalibrateQuaternion_pressed():
@@ -37,6 +37,7 @@ func _on_Attack_pressed():
 	Arcane.msg.emitToViews(Events.AttackEvent.new())
 
 
-func TakeDamage(e, from):
+func onTakeDamage(e, from):
 	Arcane.pad.vibrate(200)
 	Arcane.utils.writeToScreen("Taken " + str(e.damage) + " damage! Ouch!")
+	

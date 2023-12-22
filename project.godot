@@ -12,42 +12,47 @@ _global_script_classes=[ {
 "base": "Node",
 "class": "AEventEmitter",
 "language": "GDScript",
-"path": "res://Arcane_Library/Services/AEventEmitter.gd"
+"path": "res://Arcanepad_Library/Services/AEventEmitter.gd"
+}, {
+"base": "Reference",
+"class": "AEventName",
+"language": "GDScript",
+"path": "res://Arcanepad_Library/models/AEventNames.gd"
 }, {
 "base": "Reference",
 "class": "AEvents",
 "language": "GDScript",
-"path": "res://Arcane_Library/models/ArcaneEvents.gd"
+"path": "res://Arcanepad_Library/models/ArcaneEvents.gd"
 }, {
 "base": "Reference",
 "class": "AModels",
 "language": "GDScript",
-"path": "res://Arcane_Library/models/Models.gd"
+"path": "res://Arcanepad_Library/models/Models.gd"
 }, {
 "base": "Node",
 "class": "ASignals",
 "language": "GDScript",
-"path": "res://Arcane_Library/ASignals.gd"
-}, {
-"base": "Reference",
-"class": "ATypes",
-"language": "GDScript",
-"path": "res://Arcane_Library/models/Types.gd"
+"path": "res://Arcanepad_Library/ASignals.gd"
 }, {
 "base": "Node",
 "class": "AUtils",
 "language": "GDScript",
-"path": "res://Arcane_Library/Utils/AUtils.gd"
+"path": "res://Arcanepad_Library/Utils/AUtils.gd"
 }, {
 "base": "Node",
 "class": "AWebsocketService",
 "language": "GDScript",
-"path": "res://Arcane_Library/Services/AWebsocketService.gd"
+"path": "res://Arcanepad_Library/Services/AWebsocketService.gd"
 }, {
 "base": "Node",
 "class": "ArcanePad",
 "language": "GDScript",
-"path": "res://Arcane_Library/ArcanePad.gd"
+"path": "res://Arcanepad_Library/ArcanePad.gd"
+}, {
+"base": "Reference",
+"class": "EventName",
+"language": "GDScript",
+"path": "res://Shared/EventName.gd"
 }, {
 "base": "Reference",
 "class": "Events",
@@ -61,13 +66,14 @@ _global_script_classes=[ {
 } ]
 _global_script_class_icons={
 "AEventEmitter": "",
+"AEventName": "",
 "AEvents": "",
 "AModels": "",
 "ASignals": "",
-"ATypes": "",
 "AUtils": "",
 "AWebsocketService": "",
 "ArcanePad": "",
+"EventName": "",
 "Events": "",
 "GitAPI": ""
 }
@@ -76,11 +82,11 @@ _global_script_class_icons={
 
 config/name="arcanepad-godot3-sdk"
 run/main_scene="res://Scenes/Main/Main.tscn"
-config/icon="res://icon.png"
+config/icon="res://Scenes/View/Player/icon.png"
 
 [autoload]
 
-Arcane="*res://Arcane_Library/Arcane.gd"
+Arcane="*res://Arcanepad_Library/Arcane.gd"
 
 [debug]
 
